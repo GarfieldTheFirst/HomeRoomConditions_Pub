@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block app_content %}
+    {% for user in users_to_be_verified %}
+        {% include "auth/_user_to_be_verified.html" %}
+    {% endfor %}
+{% endblock %}

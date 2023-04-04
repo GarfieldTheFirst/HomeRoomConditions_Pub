@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block app_content %}
+<head>
+    <title>Sample chart</title>
+    <style>
+        .grid-container {
+          display: inline-grid;
+          grid-template-columns: auto auto;
+          padding: 10px;
+        }
+        .grid-item {
+          background-color: rgba(255, 255, 255, 0.8);
+          border: 1px solid rgba(0, 0, 0, 0.8);
+          padding: 20px;
+          font-size: 30px;
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="cell">
+        <form method="POST">
+            {{ form_1.hidden_tag() }}
+            {{ form_1.start_date.label }} {{ form_1.start_date() }}
+            {{ form_1.timezone_offset() }}
+            {{ form_1.submit }}
+            <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+            <script>
+                var startDate = toMomentSingle("{{ start_date }}");
+                document.getElementById("form_1-start_date").value = startDate;
+                var timeZoneOffset = new Date().getTimezoneOffset() / 60;
+                document.getElementById("form_1-timezone_offset").value = timeZoneOffset;
+            </script>
+        </form>
+    </div>
+    <div class="grid-container">
+        {% for item in data_for_template_dict.keys() %}
+            <!-- <h2>Data for device: {{ item }}</h2> -->
+            <div class="cell"><canvas id="lineChart {{ item }}", width="600", height="400"></canvas></div>
+            <div class="cell"><canvas id="lineChart2 {{ item }}", width="600", height="400"></canvas></div>
+        {% endfor %}
+    </div>
+    <!-- Sub templates for handling the scripts for rendering the graphs -->
+    {% include '_graph.html' %}
+</body>
+{% endblock %}

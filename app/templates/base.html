@@ -1,0 +1,68 @@
+{% extends 'bootstrap/base.html' %}
+{% block title %}
+    {% if title %}
+        {{ title }} - Gs Site
+    {% else %}
+        {{ 'Gs Site' }}
+    {% endif %}
+{% endblock %}
+{% block navbar %}
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">{{ 'Toggle navigation' }}</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <!-- The fact is that URLs are much more likely to change than view function names, which are completely internal. A secondary reason is that as you will learn later, some URLs have dynamic components in them, so generating those URLs by hand would require concatenating multiple elements, which is tedious and error prone. The url_for() is also able to generate these complex URLs. -->
+                <!-- @app.route('/index', methods=['GET', 'POST']) The argument is the name behind the slash -->
+                <a class="navbar-brand" href="{{ url_for('views.home') }}">Home/Dashboard</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <!-- navbar items on the left side-->
+                <!--<ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('views.home') }}">{{ 'Home/Dashboard' }}</a></li>
+                </ul> -->
+                <!--navbar items on the right side-->
+                <ul class="nav navbar-nav navbar-right">
+                    <!-- The is_anonymous property is one of the attributes that Flask-Login adds to user objects through the UserMixin class. The current_user.is_anonymous expression is going to be True only when the user is not logged in. -->
+                    <li><a href="{{ url_for('devices.show_devices') }}">{{ 'Show devices' }}</a></li>
+                    <li><a href="{{ url_for('settings.show_settings') }}">{{ 'Show settings' }}</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {# application content needs to be provided in the app_content block #}
+        <!-- The original version of all the page templates defined their content in a block named content. As you saw above, the block named content is used by Flask-Bootstrap, so I renamed my content block as app_content. So all my templates have to be renamed to use app_content as their content block. -->
+        {% block app_content %}{% endblock %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function approve(destElem, userId) {
+            $(destElem).html('<img src="{{ url_for('static', filename='loading.gif') }}">');
+            $.post('confirm/approve', {
+                user_id: userId
+            }).done(function(response) {
+                $(destElem).text("Approved!")
+            }).fail(function() {
+                $(destElem).text("Error: Could not contact server.");
+            });
+        }
+    </script>
+{% endblock %}

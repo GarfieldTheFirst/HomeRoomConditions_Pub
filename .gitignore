@@ -1,0 +1,10 @@
+**/__pycache__
+**/venv
+**/migrations
+**/logs
+**/instance
+*.pyc
+*.zip
+*.db
+*.env
+notes.txt

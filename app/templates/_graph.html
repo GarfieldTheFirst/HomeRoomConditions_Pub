@@ -1,0 +1,125 @@
+<!-- this is how to give the canvas the 2d context (where it can draw in this context) -->
+<!-- we are using jinja, this means that the javascript code below is not recognized as correct.
+This does not matter, as jinja is interpreted before-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+<!-- import of toMoment function from js file -->
+<script src="{{ url_for('static', filename='scripts.js') }}"></script>
+{% for item in data_for_template_dict.keys() %}
+<script>
+    var timestamps = toMoment({{ data_for_template_dict[item]['labels']|safe }});
+    var movement_detections = {{ data_for_template_dict[item]['movements']|safe }};
+    var temperature_recordings = {{ data_for_template_dict[item]['temperatures']|safe }};
+    var humidity_recordings = {{ data_for_template_dict[item]['humidities']|safe }};
+</script>
+<script>
+    var ctx = document.getElementById("lineChart {{ item }}").getContext("2d");
+    var lineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: timestamps,
+            datasets: [
+            {
+                label: "temperature",
+                fill: false,
+                data: temperature_recordings,
+                borderColor: "rgb(192, 75, 75)",
+                lineTension: 0.1,
+                yAxisID: 'temperature'
+            },
+            {
+                label: "humidity",
+                fill: false,
+                data: humidity_recordings,
+                borderColor: "rgb(75, 150, 192)",
+                lineTension: 0.1,
+                yAxisID: 'humidity'
+            }]
+        },      
+        options: {
+            responsive: false,
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            stacked: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Ambient conditions at device: {{ item }}'
+              }
+            },
+            scales: {
+                temperature: {
+                    title: {
+                        display: true,
+                        text: '°C'
+                    },
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    min: 0,
+                    max: 45
+                },
+                humidity: {
+                    title: {
+                        display: true,
+                        text: '%'
+                    },
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    min: 0,
+                    max: 100,
+                    // grid line settings
+                    grid: {
+                        drawOnChartArea: false // only want the grid lines for one axis to show up
+                    }
+                }
+            }
+        }
+    });
+    var ctx2 = document.getElementById("lineChart2 {{ item }}").getContext("2d");
+    var lineChart2 = new Chart(ctx2, {
+        type: "line",
+        data: {
+            labels: timestamps,
+            datasets: [
+            {
+                label: "movement",
+                fill: true,
+                data: movement_detections,
+                borderColor: "rgb(192, 75, 75)",
+                lineTension: 0,
+                yAxisID: 'movement'
+            }]
+        },      
+        options: {
+            responsive: false,
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            stacked: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Movement detection at device: {{ item }}'
+              }
+            },
+            scales: {
+                movement: {
+                    title: {
+                        display: true,
+                        text: 'activity'
+                    },
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    min: 0,
+                    max: 1
+                }
+            }
+        }
+    });
+</script>
+{% endfor %}

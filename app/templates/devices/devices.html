@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block app_content %}
+    <div class="cell">
+        <form method="POST" name="Refresh form">
+            {{ form_1.hidden_tag() }}
+            {{ form_1.submit }}
+        </form>
+    </div>
+    {{ data }}
+{% endblock %}
