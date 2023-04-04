@@ -1,0 +1,3 @@
+-create venv and install requirements
+-fill out your details in .env file
+-Debug homeroomconditions.py

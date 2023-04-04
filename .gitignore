@@ -6,5 +6,4 @@
 *.pyc
 *.zip
 *.db
-*.env
 notes.txt
