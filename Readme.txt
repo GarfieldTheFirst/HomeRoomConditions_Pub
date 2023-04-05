@@ -1,3 +1,11 @@
--create venv and install requirements
--fill out your details in .env file
--Debug homeroomconditions.py
+Installation (linux)
+
+run the following:
+source setup_linux
+
+The script will create the run_app.sh script
+
+Starting the app
+
+run the followuing:
+source run_app.sh

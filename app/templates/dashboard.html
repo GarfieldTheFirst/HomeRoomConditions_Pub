@@ -18,6 +18,7 @@
     </style>
 </head>
 <body>
+    <h2>Monitoring interval selection</h2>
     <div class="cell">
         <form method="POST">
             {{ form_1.hidden_tag() }}
@@ -33,12 +34,19 @@
             </script>
         </form>
     </div>
+    <h2>Measurement History</h2>
     <div class="grid-container">
-        {% for item in data_for_template_dict.keys() %}
-            <!-- <h2>Data for device: {{ item }}</h2> -->
-            <div class="cell"><canvas id="lineChart {{ item }}", width="600", height="400"></canvas></div>
-            <div class="cell"><canvas id="lineChart2 {{ item }}", width="600", height="400"></canvas></div>
-        {% endfor %}
+        {% if data_for_template_dict.keys() %}
+            {% for item in data_for_template_dict.keys() %}
+                <!-- <h2>Data for device: {{ item }}</h2> -->
+                <div class="cell"><canvas id="lineChart {{ item }}", width="600", height="400"></canvas></div>
+                <div class="cell"><canvas id="lineChart2 {{ item }}", width="600", height="400"></canvas></div>
+            {% endfor %}
+        {% else %}
+            <a href="{{ url_for('devices.show_devices') }}">
+                Go to device selection to find available devices and start recording data.
+            </a>
+        {% endif %}
     </div>
     <!-- Sub templates for handling the scripts for rendering the graphs -->
     {% include '_graph.html' %}

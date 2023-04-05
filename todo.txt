@@ -1,45 +1,24 @@
 Ideas
 
--Settings view
+-Settings view:
     -DONE Debug repeated posts --> no problem if deployed
     -DONE sampling time
     -DONE simulated device on/off
     -DONE selection of port
 
-Non-Functional
-
--handling of automatically detected variables
--Setup logging best practice
--Update unittests
--Remove unnecessary folders / auth
--Prettier format of tables
--DONE Update device recording status without using the datacollectorhandler as thread
--DONE Debug database entries: no data being written at the moment
+Non-Functional:
+    -handling of automatically detected variables
+    -Setup logging best practice
+    -Update unittests
+    -Remove unnecessary folders / auth
+    -Prettier format of tables
+    -DONE Update device recording status without using the datacollectorhandler as thread
+    -DONE Debug database entries: no data being written at the moment
 
 Devices view:
--Email notifications on movements selectable for each device in table
--Automatic variable detection from arduino (list of variables)
+    -Email notifications on movements selectable for each device in table
+    -Automatic variable detection from arduino (list of variables)
 
 Dashboard view:
--Handling auf automatically generated variables
--DONE Debugging of data selection / filtering
-
-
-Docker commands to build current image / run it / show the status
-
-docker build -t homeroomconditions:latest .
-docker run --name homeroomconditions -d -p 8000:5000 homeroomconditions:latest
-docker ps -a
-
-Environment variables are added with -e, for example:
-    -e SECRET_KEY=my-secret-key \
-    -e MAIL_SERVER=smtp.googlemail.com -e MAIL_PORT=587 -e MAIL_USE_TLS=true \
-    -e MAIL_USERNAME=<your-gmail-username> -e MAIL_PASSWORD=<your-gmail-password> \
-
-
-docker run --name mysql -d -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=roomdata -e MYSQL_USER=root -e MYSQL_PASSWORD=Wartsila45$ mysql/mysql-server:latest
-
-docker run --name homeroomconditions -d -p 8000:5000 -e SECRET_KEY=Qeunfiu398878dh2n30fjnbbxAhdf0 --link mysql:dbserver homeroomconditions:latest
-
-Manually execute Role.insert_roles on first setup
-
+    -Handling auf automatically generated variables
+    -DONE Debugging of data selection / filtering

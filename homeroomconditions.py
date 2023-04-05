@@ -1,7 +1,6 @@
 from app import create_app, db, data_collector_handler, \
     sensor_simulator_handler
 from sqlalchemy_utils import database_exists
-from app.models.roomdata import AnonymousUser, Permission, Role, User, Post
 from app.models.roomdata import Device as DB_Device, Roomdata, Hour
 from config import Config, Development
 import os
@@ -25,11 +24,6 @@ data_collector_handler.update_devices_to_be_monitored()
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db,
-            'User': User,
-            'AnonymousUser': AnonymousUser,
-            'Post': Post,
-            'Role': Role,
-            'Permission': Permission,
             'Roomdata': Roomdata,
             'Hour': Hour,
             'DB_Device': DB_Device}

@@ -15,8 +15,7 @@ class FieldButtonCol(ButtonCol):
                  url_kwargs=None,
                  button_attrs=None,
                  form_attrs=None,
-                 form_hidden_fields=None,
-                 form_fields=None,
+                 form_fields=None,  # Added this argument
                  **kwargs):
         super().__init__(name,
                          endpoint,
@@ -24,11 +23,12 @@ class FieldButtonCol(ButtonCol):
                          url_kwargs,
                          button_attrs,
                          form_attrs,
-                         form_hidden_fields,
+                         form_hidden_fields=None,
                          **kwargs)
-        self.form_fields = form_fields or {}
+        self.form_fields = form_fields or {}  # Added this argument
 
-    def td_contents(self, item, attr_list):
+    # Overriding: fields replace hidden fields
+    def td_contents(self, item, attr_list):  
         button_attrs = dict(self.button_attrs)
         button_attrs['type'] = 'submit'
         button = element(
@@ -41,14 +41,6 @@ class FieldButtonCol(ButtonCol):
             method='post',
             action=self.url(item),
         ))
-        form_hidden_fields_elements = [
-            element(
-                'input',
-                attrs=dict(
-                    type='hidden',
-                    name=name,
-                    value=value))
-            for name, value in sorted(self.form_hidden_fields.items())]
         form_fields_elements = [
             element(
                 'input',
@@ -61,7 +53,6 @@ class FieldButtonCol(ButtonCol):
             'form',
             attrs=form_attrs,
             content=[
-                ''.join(form_hidden_fields_elements),
                 ''.join(form_fields_elements),
                 button
             ],
@@ -69,30 +60,43 @@ class FieldButtonCol(ButtonCol):
         )
 
 
-class SettingsTable(Table):
+class BoolSettingsTable(Table):
     name = Col('Name')
     enabled = BoolNaCol('Enabled')
-    value = Col("Value", td_html_attrs={"value_item": ""})
-    change_value = FieldButtonCol(
-        'Update value or toggle function', 'settings.show_settings',
+    change_value = ButtonCol(
+        'Toggle function', 'settings.show_settings',
         url_kwargs=dict(name='name', enabled='enabled'),
         # this ends up in request.values as an identifier
+        button_attrs={"name": "form_change"})
+
+
+class FieldSettingsTable(Table):
+    name = Col('Name')
+    value = Col('Value')
+    change_value = FieldButtonCol(
+        'Update value', 'settings.show_settings',
+        url_kwargs=dict(name='name'),
+        # this ends up in request.values as an identifier
         button_attrs={"name": "form_change"},
-        form_attrs={"method": "POST"},
         form_fields={"input_field": ""})
 
 
-class Setting(object):
-    def __init__(self, name, enabled, value) -> None:
+class BoolSetting(object):
+    def __init__(self, name, enabled) -> None:
         self.name = name
         self.enabled = enabled
+
+
+class FieldSetting(object):
+    def __init__(self, name, value) -> None:
+        self.name = name
         self.value = value
 
 
 @bpr.route('', methods=['POST', 'GET'])
 def show_settings():
     if request.method == 'POST':
-        if 'enabled' not in request.args:
+        if 'enabled' not in request.args:  # field value updated
             raw_value = request.form.get('input_field')
             if not str.isdigit(raw_value):
                 flash("Please enter a number.")
@@ -102,46 +106,29 @@ def show_settings():
                     flash("Please enter an update interval of > 5 s.")
                 else:
                     settings_data[request.args['name']] = value
-        else:
+        else:  # toggle bool
             settings_data[request.args['name']] = False \
                 if request.args['enabled'] == "True" else True
         with open("./appsettings.json", 'w', encoding='utf-8') as f:
             json.dump(settings_data, f, indent=4)
             f.close()
         sensor_simulator_handler.update_simulated_devices()
-    settings = []
+    bool_settings = []
+    field_settings = []
     for key in settings_data.keys():
         is_bool = isinstance(settings_data[key], bool)
-        setting = Setting(name=key,
-                          enabled=settings_data[key]
-                          if is_bool
-                          else None,
-                          value=settings_data[key]
-                          if not is_bool
-                          else None)
-        settings.append(setting)
-    table = SettingsTable(settings)
-    table.table_id = "settings"
-    table.classes = ["table", "table-striped"]
-    return render_template('settings/settings.html', data=table)
-
-
-# def expand_settings_dict(settings_data):
-#     settings_list = []
-#     for key in settings_data.keys():
-#         if settings_data[key] is dict:
-#             setting = Setting(name=key,
-#                               value=settings_data[key])
-#         else:
-#             setting = Setting(name=key,
-#                               value=settings_data[key])
-#             settings_list.append(setting)
-# email_submit_form = SubmitForm()
-# if request.method == "POST" and \
-#         email_submit_form.is_submitted():
-#     send_email(subject="Test",
-#                 sender=current_app.config['ADMINS'][0],
-#                 recipients=current_app.config['ADMINS'],
-#                 text_body="Flask_test",
-#                 html_body=None)
-#     flash("Email has been sent.")
+        if is_bool:
+            bool_settings.append(BoolSetting(name=key,
+                                             enabled=settings_data[key]))
+        else:
+            field_settings.append(FieldSetting(name=key,
+                                               value=settings_data[key]))
+    bool_settings_table = BoolSettingsTable(bool_settings)
+    field_settings_table = FieldSettingsTable(field_settings)
+    bool_settings_table.table_id = "bool_settings"
+    bool_settings_table.classes = ["table", "table-striped"]
+    field_settings_table.table_id = "field_settings"
+    field_settings_table.classes = ["table", "table-striped"]
+    return render_template('settings/settings.html',
+                           bool_settings=bool_settings_table,
+                           field_settings=field_settings_table)

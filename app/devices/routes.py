@@ -84,7 +84,7 @@ def show_devices():
                               recording=stored_device.recording))
     table = DeviceTable(devices)
     table.table_id = "devices"
-    table.classes = ["table", "table-striped"]
+    table.classes = ["table", "table-striped", "left-align"]
     return render_template('devices/devices.html',
                            data=table,
                            form_1=form_1)
