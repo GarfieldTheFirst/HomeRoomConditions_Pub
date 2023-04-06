@@ -1,6 +1,4 @@
 import subprocess
-import os
-import platform
 import threading
 import requests
 import json
@@ -13,16 +11,13 @@ def get_discovered_devices_list():
     responses = []
     device_ips = []
     devices = []
-    if platform.system() == "Linux":
+    with tempfile.TemporaryFile() as tempf:
         # execute command to get all devices in linux
-        with tempfile.TemporaryFile() as tempf:
-            proc = subprocess.Popen(["ip", "neigh", "show"],
-                                    stdout=tempf)
-            proc.wait()
-            tempf.seek(0)
-            devices = list(map(lambda x: x.decode("utf-8"), tempf.readlines()))
-    else:
-        devices = os.popen('arp -a')
+        proc = subprocess.Popen(["ip", "neigh", "show"],
+                                stdout=tempf)  
+        proc.wait()
+        tempf.seek(0)
+        devices = list(map(lambda x: x.decode("utf-8"), tempf.readlines()))
     for device in devices:
         for item in device.split(" "):
             ip_candidate = item.split(".")
