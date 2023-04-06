@@ -6,7 +6,7 @@ python3 -m venv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
 
-mkdir /app/data
+mkdir ./app/data
 
 flask db init
 flask db migrate
