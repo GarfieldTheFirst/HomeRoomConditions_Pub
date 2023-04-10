@@ -1,9 +1,5 @@
-<!-- this is how to give the canvas the 2d context (where it can draw in this context) -->
-<!-- we are using jinja, this means that the javascript code below is not recognized as correct.
-This does not matter, as jinja is interpreted before-->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
-<!-- import of toMoment function from js file -->
-<script src="{{ url_for('static', filename='scripts.js') }}"></script>
+<script src="{{ url_for('static', filename='charts.js') }}"></script>
+<script src="{{ url_for('static', filename='timeConversions.js') }}" type="module"></script>
 {% for item in data_for_template_dict.keys() %}
 <script>
     var timestamps = toMoment({{ data_for_template_dict[item]['labels']|safe }});

@@ -1,6 +1,4 @@
-// This is similar to an import statement in python
-// Here the library containing the moment() function is imported
-document.writeln("<script src='https://momentjs.com/downloads/moment.js'></script>");
+document.writeln("<script src='./static/moment.js'></script>");
 function toMoment(input_timestamps) {
     const output_timestamps = [];
     for (let item of input_timestamps) {
