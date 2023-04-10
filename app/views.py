@@ -28,7 +28,7 @@ def home():
     start_date_to_send = start_date.strftime('%Y-%m-%dT%H:%M') + 'Z'
     hours_to_monitor = (datetime.utcnow() - start_date) // timedelta(hours=1)
     sample_period_hours = hours_to_monitor // \
-        settings_data["number_of_points_to_show"]
+        settings_data["number of points to show"]
     devices_data_dict, device_list = get_data_for_recording_devices(
         sample_period_hours=sample_period_hours,
         start_date=start_date)

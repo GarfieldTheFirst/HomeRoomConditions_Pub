@@ -39,6 +39,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     bootstrap.init_app(app)
+    app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     moment.init_app(app)
 
     from app.views import views
