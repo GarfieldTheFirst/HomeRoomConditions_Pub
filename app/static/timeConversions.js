@@ -1,4 +1,3 @@
-document.writeln("<script src='./static/moment.js'></script>");
 function toMoment(input_timestamps) {
     const output_timestamps = [];
     for (let item of input_timestamps) {

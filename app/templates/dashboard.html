@@ -2,10 +2,11 @@
 {% block app_content %}
     {% block scripts %}
         {{ super() }}
+        <script src="{{ url_for('static', filename='moment.js') }}"></script>
         <script src="{{ url_for('static', filename='timeConversions.js') }}"></script>
     {% endblock %}
-    <head>
-        <title>Sample chart</title>
+    {% block styles %}
+        {{ super() }}
         <style>
             .grid-container {
             display: inline-grid;
@@ -20,7 +21,7 @@
             text-align: center;
             }
         </style>
-    </head>
+    {% endblock %}
     <body>
         <h2>Monitoring interval selection</h2>
         <div class="cell">
@@ -41,7 +42,8 @@
         <div class="grid-container">
             {% if data_for_template_dict.keys() %}
                 {% for item in data_for_template_dict.keys() %}
-                    <!-- <h2>Data for device: {{ item }}</h2> -->
+                    <div class="cell"><h4>Data for device: {{ item }}</h4></div>
+                    <div class="cell"></div>
                     <div class="cell"><canvas id="lineChart {{ item }}", width="600", height="400"></canvas></div>
                     <div class="cell"><canvas id="lineChart2 {{ item }}", width="600", height="400"></canvas></div>
                 {% endfor %}

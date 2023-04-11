@@ -1,4 +1,8 @@
 {% extends 'bootstrap/base.html' %}
+{% block html %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% endblock %}
 {% block title %}
     {% if title %}
         {{ title }} - Gs Site
@@ -27,18 +31,15 @@
         </div>
     </nav>
 {% endblock %}
-
 {% block content %}
     <div class="container">
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-info" role="alert">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
-        {# application content needs to be provided in the app_content block #}
-        <!-- The original version of all the page templates defined their content in a block named content. As you saw above, the block named content is used by Flask-Bootstrap, so I renamed my content block as app_content. So all my templates have to be renamed to use app_content as their content block. -->
         {% block app_content %}{% endblock %}
     </div>
 {% endblock %}

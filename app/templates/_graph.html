@@ -1,5 +1,5 @@
 <script src="{{ url_for('static', filename='charts.js') }}"></script>
-<script src="{{ url_for('static', filename='timeConversions.js') }}" type="module"></script>
+<script src="{{ url_for('static', filename='timeConversions.js') }}"></script>
 <script>
     function updateCharts() {
             fetch('/get_data')
@@ -27,119 +27,119 @@
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
 </script>
 {% for item in data_for_template_dict.keys() %}
-<script>
-    var timestamps_{{ item }} = toMoment({{ data_for_template_dict[item]['labels']|safe }});
-    var movement_detections_{{ item }} = {{ data_for_template_dict[item]['movements']|safe }};
-    var temperature_recordings_{{ item }} = {{ data_for_template_dict[item]['temperatures']|safe }};
-    var humidity_recordings_{{ item }} = {{ data_for_template_dict[item]['humidities']|safe }};
-    var ctx_{{ item }} = document.getElementById("lineChart {{ item }}").getContext("2d");
-    var lineChart_{{ item }} = new Chart(ctx_{{ item }}, {
-        type: "line",
-        data: {
-            labels: timestamps_{{ item }},
-            datasets: [
-            {
-                label: "temperature",
-                fill: false,
-                data: temperature_recordings_{{ item }},
-                borderColor: "rgb(192, 75, 75)",
-                lineTension: 0.1,
-                yAxisID: 'temperature'
-            },
-            {
-                label: "humidity",
-                fill: false,
-                data: humidity_recordings_{{ item }},
-                borderColor: "rgb(75, 150, 192)",
-                lineTension: 0.1,
-                yAxisID: 'humidity'
-            }]
-        },      
-        options: {
-            responsive: false,
-            interaction: {
-              mode: 'index',
-              intersect: false
-            },
-            stacked: false,
-            plugins: {
-              title: {
-                display: true,
-                text: 'Ambient conditions at device: {{ item }}'
-              }
-            },
-            scales: {
-                temperature: {
-                    title: {
-                        display: true,
-                        text: '°C'
-                    },
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    min: 0,
-                    max: 45
+    <script>
+        var timestamps_{{ item }} = toMoment({{ data_for_template_dict[item]['labels']|safe }});
+        var movement_detections_{{ item }} = {{ data_for_template_dict[item]['movements']|safe }};
+        var temperature_recordings_{{ item }} = {{ data_for_template_dict[item]['temperatures']|safe }};
+        var humidity_recordings_{{ item }} = {{ data_for_template_dict[item]['humidities']|safe }};
+        var ctx_{{ item }} = document.getElementById("lineChart {{ item }}").getContext("2d");
+        var lineChart_{{ item }} = new Chart(ctx_{{ item }}, {
+            type: "line",
+            data: {
+                labels: timestamps_{{ item }},
+                datasets: [
+                {
+                    label: "temperature",
+                    fill: false,
+                    data: temperature_recordings_{{ item }},
+                    borderColor: "rgb(192, 75, 75)",
+                    lineTension: 0.1,
+                    yAxisID: 'temperature'
                 },
-                humidity: {
-                    title: {
-                        display: true,
-                        text: '%'
-                    },
-                    type: 'linear',
+                {
+                    label: "humidity",
+                    fill: false,
+                    data: humidity_recordings_{{ item }},
+                    borderColor: "rgb(75, 150, 192)",
+                    lineTension: 0.1,
+                    yAxisID: 'humidity'
+                }]
+            },      
+            options: {
+                responsive: false,
+                interaction: {
+                mode: 'index',
+                intersect: false
+                },
+                stacked: false,
+                plugins: {
+                title: {
                     display: true,
-                    position: 'right',
-                    min: 0,
-                    max: 100,
-                    // grid line settings
-                    grid: {
-                        drawOnChartArea: false // only want the grid lines for one axis to show up
+                    text: 'Ambient conditions'
+                }
+                },
+                scales: {
+                    temperature: {
+                        title: {
+                            display: true,
+                            text: '°C'
+                        },
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        min: 0,
+                        max: 45
+                    },
+                    humidity: {
+                        title: {
+                            display: true,
+                            text: '%'
+                        },
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 0,
+                        max: 100,
+                        // grid line settings
+                        grid: {
+                            drawOnChartArea: false // only want the grid lines for one axis to show up
+                        }
                     }
                 }
             }
-        }
-    });
-    var ctx2_{{ item }} = document.getElementById("lineChart2 {{ item }}").getContext("2d");
-    var lineChart2_{{ item }} = new Chart(ctx2_{{ item }}, {
-        type: "line",
-        data: {
-            labels: timestamps_{{ item }},
-            datasets: [
-            {
-                label: "movement",
-                fill: true,
-                data: movement_detections_{{ item }},
-                borderColor: "rgb(192, 75, 75)",
-                lineTension: 0,
-                yAxisID: 'movement'
-            }]
-        },      
-        options: {
-            responsive: false,
-            interaction: {
-              mode: 'index',
-              intersect: false
-            },
-            stacked: false,
-            plugins: {
-              title: {
-                display: true,
-                text: 'Movement detection at device: {{ item }}'
-              }
-            },
-            scales: {
-                movement: {
-                    title: {
-                        display: true,
-                        text: 'activity'
-                    },
-                    type: 'linear',
+        });
+        var ctx2_{{ item }} = document.getElementById("lineChart2 {{ item }}").getContext("2d");
+        var lineChart2_{{ item }} = new Chart(ctx2_{{ item }}, {
+            type: "line",
+            data: {
+                labels: timestamps_{{ item }},
+                datasets: [
+                {
+                    label: "movement",
+                    fill: true,
+                    data: movement_detections_{{ item }},
+                    borderColor: "rgb(192, 75, 75)",
+                    lineTension: 0,
+                    yAxisID: 'movement'
+                }]
+            },      
+            options: {
+                responsive: false,
+                interaction: {
+                mode: 'index',
+                intersect: false
+                },
+                stacked: false,
+                plugins: {
+                title: {
                     display: true,
-                    position: 'left',
-                    min: 0,
-                    max: 1
+                    text: 'Movement detection'
+                }
+                },
+                scales: {
+                    movement: {
+                        title: {
+                            display: true,
+                            text: 'activity'
+                        },
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        min: 0,
+                        max: 1
+                    }
                 }
             }
-        }
-    });
-</script>
+        });
+    </script>
 {% endfor %}

@@ -35,7 +35,6 @@ def create_app(config_class=Config):
         app.logger.setLevel(logging.INFO)
         app.logger.info('Homeroomconditions startup')
     app.config.from_object(config_class)
-    # app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     db.init_app(app)
     migrate.init_app(app, db)
     bootstrap.init_app(app)
