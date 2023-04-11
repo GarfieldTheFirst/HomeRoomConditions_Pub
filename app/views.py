@@ -1,6 +1,4 @@
-from flask import Blueprint, request, render_template, flash
-# from flask_login import login_required
-# from app.decorators import user_required
+from flask import Blueprint, jsonify, request, render_template, flash
 from datetime import datetime, timedelta
 from app.forms import FilteringForm
 from app.db_handler.db_handler import get_data_for_recording_devices
@@ -12,8 +10,6 @@ views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/dashboard', methods=['GET', 'POST'])
-# @login_required
-# @user_required
 def home():
     form_1 = FilteringForm(prefix="form_1")
     # By default (GET), get the data for the last hour
@@ -26,6 +22,24 @@ def home():
         else:
             flash("Incompete form data submitted!")
     start_date_to_send = start_date.strftime('%Y-%m-%dT%H:%M') + 'Z'
+    sample_period_hours = (datetime.utcnow() - start_date) \
+        // timedelta(hours=1) // settings_data["number of points to show"]
+    data_for_template_dict = get_data_dict()
+    return render_template("dashboard.html",
+                           form_1=form_1,
+                           start_date=start_date_to_send,
+                           sample_period_hours=sample_period_hours,
+                           data_for_template_dict=data_for_template_dict)
+
+
+@views.route('/get_data', methods=['GET'])
+def get_data():
+    data_for_template_dict = get_data_dict()
+    return jsonify(data_for_template_dict)
+
+
+def get_data_dict():
+    start_date = datetime.utcnow() - timedelta(hours=1)
     hours_to_monitor = (datetime.utcnow() - start_date) // timedelta(hours=1)
     sample_period_hours = hours_to_monitor // \
         settings_data["number of points to show"]
@@ -53,8 +67,4 @@ def home():
                     'movements':
                     [row.movement_detection
                      for row in devices_data_dict[device.name]]}})
-    return render_template("dashboard.html",
-                           form_1=form_1,
-                           start_date=start_date_to_send,
-                           data_for_template_dict=data_for_template_dict,
-                           sample_period_hours=sample_period_hours)
+    return data_for_template_dict

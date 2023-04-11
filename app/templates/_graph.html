@@ -1,23 +1,47 @@
 <script src="{{ url_for('static', filename='charts.js') }}"></script>
 <script src="{{ url_for('static', filename='timeConversions.js') }}" type="module"></script>
+<script>
+    function updateCharts() {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => { 
+                    for (var item in data) {
+                        var timestamps = toMoment(data[item]['labels']);
+                        var movement_detections = data[item]['movements'];
+                        var temperature_recordings = data[item]['temperatures'];
+                        var humidity_recordings = data[item]['humidities'];
+                    
+                        var chart1 = Chart.getChart('lineChart ' + item);
+                        chart1.data.labels = timestamps;
+                        chart1.data.datasets[0].data = temperature_recordings;
+                        chart1.data.datasets[1].data = humidity_recordings;
+                        chart1.update();
+                    
+                        var chart2 = Chart.getChart('lineChart2 ' + item);
+                        chart2.data.labels = timestamps;
+                        chart2.data.datasets[0].data = movement_detections;
+                        chart2.update();
+                    }
+                });
+    };
+    setInterval(updateCharts, 5000); // Update charts every 5 seconds
+</script>
 {% for item in data_for_template_dict.keys() %}
 <script>
-    var timestamps = toMoment({{ data_for_template_dict[item]['labels']|safe }});
-    var movement_detections = {{ data_for_template_dict[item]['movements']|safe }};
-    var temperature_recordings = {{ data_for_template_dict[item]['temperatures']|safe }};
-    var humidity_recordings = {{ data_for_template_dict[item]['humidities']|safe }};
-</script>
-<script>
-    var ctx = document.getElementById("lineChart {{ item }}").getContext("2d");
-    var lineChart = new Chart(ctx, {
+    var timestamps_{{ item }} = toMoment({{ data_for_template_dict[item]['labels']|safe }});
+    var movement_detections_{{ item }} = {{ data_for_template_dict[item]['movements']|safe }};
+    var temperature_recordings_{{ item }} = {{ data_for_template_dict[item]['temperatures']|safe }};
+    var humidity_recordings_{{ item }} = {{ data_for_template_dict[item]['humidities']|safe }};
+    var ctx_{{ item }} = document.getElementById("lineChart {{ item }}").getContext("2d");
+    var lineChart_{{ item }} = new Chart(ctx_{{ item }}, {
         type: "line",
         data: {
-            labels: timestamps,
+            labels: timestamps_{{ item }},
             datasets: [
             {
                 label: "temperature",
                 fill: false,
-                data: temperature_recordings,
+                data: temperature_recordings_{{ item }},
                 borderColor: "rgb(192, 75, 75)",
                 lineTension: 0.1,
                 yAxisID: 'temperature'
@@ -25,7 +49,7 @@
             {
                 label: "humidity",
                 fill: false,
-                data: humidity_recordings,
+                data: humidity_recordings_{{ item }},
                 borderColor: "rgb(75, 150, 192)",
                 lineTension: 0.1,
                 yAxisID: 'humidity'
@@ -74,16 +98,16 @@
             }
         }
     });
-    var ctx2 = document.getElementById("lineChart2 {{ item }}").getContext("2d");
-    var lineChart2 = new Chart(ctx2, {
+    var ctx2_{{ item }} = document.getElementById("lineChart2 {{ item }}").getContext("2d");
+    var lineChart2_{{ item }} = new Chart(ctx2_{{ item }}, {
         type: "line",
         data: {
-            labels: timestamps,
+            labels: timestamps_{{ item }},
             datasets: [
             {
                 label: "movement",
                 fill: true,
-                data: movement_detections,
+                data: movement_detections_{{ item }},
                 borderColor: "rgb(192, 75, 75)",
                 lineTension: 0,
                 yAxisID: 'movement'

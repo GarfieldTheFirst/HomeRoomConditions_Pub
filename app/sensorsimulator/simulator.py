@@ -14,7 +14,7 @@ class SimulatedRoomData(Resource):
                               "humidity": humidity,
                               "movementDetected": movement_detection},
                 "id": "999",
-                "name": "GArduino-simulation",
+                "name": "GArduinoSimulation",
                 "hardware": "arduino",
                 "connected": 1}
 
