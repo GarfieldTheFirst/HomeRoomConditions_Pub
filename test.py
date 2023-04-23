@@ -1,21 +1,18 @@
-# from sshtunnel import SSHTunnelForwarder
-# from config import TestConfig, DevelConfigMYSQL
-# from app.datacollector.datasender import SSHFileSender
-
-import json
 import unittest
 import time
 
+from datetime import datetime, timedelta
 from config import TestConfig
-
-from app.models.roomdata import Roomdata
 from sqlalchemy_utils import create_database, database_exists
 
-
-from app.data_collector.web_api import API
-from app.data_collector.data_collector import DataCollector
-from app.device_discovery_tool.device_discovery import get_devices
-from app import create_app, db
+from app.db_handler.db_handler import store_new_device, \
+    get_stored_device, set_stored_devices_recording_setting, \
+    get_data_for_recording_devices
+from app.data_collector.data_collector_handler import DataCollectorHandler
+from app.device_discovery_tool.device_discovery import \
+    get_discovered_devices_list
+from app.sensorsimulator.simulator_handler import SensorSimulatorHandler
+from app import create_app, db, settings_data
 
 
 class DataCollectorTest(unittest.TestCase):
@@ -35,61 +32,72 @@ class DataCollectorTest(unittest.TestCase):
         db.engine.dispose()
         self.app_context.pop()
 
-    def test_webapi(self):
-        connection = API(arduino_base_url=self.config_class.OFFICE_ARDUINO_URL)
-        data = connection.get_all_data()
-        temperature = data['variables']['temperature']
-        humidity = data['variables']['humidity']
-        movementDetected = data['variables']['movementDetected']
-        name = data['name']
-        assert temperature
-        assert humidity
-        assert movementDetected is not None
-        assert name
-
-    def test_storage(self):
-        office_data_collector = DataCollector(
-            app=self.app,
-            db=db,
-            arduino_base_url=self.config_class.OFFICE_ARDUINO_URL,
-            collection_interval=1,
-            simulated=True)
-        office_data_collector.start()
+    def test_simulation_recording_getting_data(self):
+        sensor_simulator_handler = SensorSimulatorHandler()
+        sensor_simulator_handler.update_simulated_devices()
+        assert settings_data["simulated device enabled"]
         time.sleep(5)
-        office_data_collector.stop_event.set()
-        data = list(Roomdata.query.all())
-        assert data
-        if data:
-            data = list(filter(lambda x: x, data))  # remove empty lines
-            for item in data:
-                print(item.date)
-                print(item.humidity)
-                print(item.temperature)
-                print(item.movement_detection)
-
-
-class NetworkScanTest(unittest.TestCase):
-    def test_if_scan_works(self):
-        results = get_devices()
-        print(results)
-        assert results  # Arduinos need to be in the network
-
-
-class AppSettingsTest(unittest.TestCase):
-    def test_json_file_loading(self):
-        with open("./appsettings.json") as f:
-            data = json.load(f)
-            f.close()
-        assert data
-        updated_data = data
-        updated_data["devices_to_monitor"].update(
-            {"test_device": "0.0.0.0"})
-        with open("./appsettings.json", 'w', encoding='utf-8') as f:
-            json.dump(updated_data, f, ensure_ascii=False, indent=4)
-            f.close()
-        f = open("./appsettings.json",)
-        newly_read_data = json.load(f)
-        assert newly_read_data == updated_data
-        with open("./appsettings.json", 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-            f.close()
+        discovered_devices_list = get_discovered_devices_list()
+        assert discovered_devices_list
+        data_collector_handler = DataCollectorHandler(db=db, app=self.app)
+        for discovered_device in discovered_devices_list:
+            store_new_device(name=discovered_device['name'],
+                             ip=discovered_device['ip'],
+                             connected=False)
+            stored_device = get_stored_device(name=discovered_device['name'])
+            set_stored_devices_recording_setting(
+                stored_devices=[stored_device],
+                value=True)
+        data_collector_handler.update_devices_to_be_monitored()
+        attempts = 0
+        devices_data_dict = None
+        data_arrived = False
+        while attempts < 10 and not data_arrived:
+            start_date = datetime.utcnow() - timedelta(hours=1)
+            hours_to_monitor = 1
+            sample_period_hours = hours_to_monitor // \
+                settings_data["number of points to show"]
+            devices_data_dict, device_list = get_data_for_recording_devices(
+                sample_period_hours=sample_period_hours,
+                start_date=start_date)
+            data_arrived = True if devices_data_dict["GArduinoSimulation"] \
+                else False
+            time.sleep(settings_data["update interval [s]"])
+            attempts += 1
+        assert data_arrived
+        data_for_template_dict = {}
+        if devices_data_dict:
+            for device in device_list:
+                # remove empty lines
+                devices_data_dict[device.name] = \
+                    list(filter(lambda x: x, devices_data_dict[device.name]))
+                data_for_template_dict \
+                    .update({device.name: {
+                        'labels':
+                        [str(row.date) + 'Z'
+                            for row in devices_data_dict[device.name]],
+                        # Z indicates utc
+                        'temperatures':
+                        [row.temperature
+                            for row in devices_data_dict[device.name]],
+                        'humidities':
+                        [row.humidity
+                            for row in devices_data_dict[device.name]],
+                        'movements':
+                        [row.movement_detection
+                            for row in devices_data_dict[device.name]]}})
+        assert "GArduinoSimulation" in devices_data_dict.keys()
+        assert 18 <= \
+            data_for_template_dict["GArduinoSimulation"]['temperatures'][0] \
+            <= 28
+        assert 30 <= \
+            data_for_template_dict["GArduinoSimulation"]['humidities'][0]\
+            <= 60
+        assert data_for_template_dict["GArduinoSimulation"]['movements'][0] \
+            in [0, 1]
+        settings_data["simulated device enabled"] = False
+        sensor_simulator_handler.update_simulated_devices()
+        set_stored_devices_recording_setting(
+            stored_devices=[stored_device],
+            value=False)
+        data_collector_handler.update_devices_to_be_monitored()

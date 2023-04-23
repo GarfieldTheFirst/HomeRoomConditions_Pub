@@ -127,7 +127,7 @@ def store_measured_data(data, time_now, device_id, hour_id):
 def get_data_for_recording_device(sample_period_hours,
                                   start_date, device: DB_Device):
     data = []
-    first_date_to_consider = Roomdata.query.filter(
+    first_date_to_consider = db.session.query(Roomdata).filter(
         Roomdata.date >= start_date).order_by(Roomdata.id.asc()).first()
     if first_date_to_consider:
         hours_to_consider = Hour.query.filter(
@@ -137,10 +137,10 @@ def get_data_for_recording_device(sample_period_hours,
             for hour in hours_to_consider:
                 hour_count += 1
                 if not hour_count % sample_period_hours:
-                    data.append(Roomdata.query.with_parent(hour).
+                    data.append(db.session.query(Roomdata).with_parent(hour).
                                 with_parent(device).first())
         else:
-            data += Roomdata.query.with_parent(device).filter(
+            data += db.session.query(Roomdata).with_parent(device).filter(
                 Roomdata.date >= start_date).all()
     return data
 

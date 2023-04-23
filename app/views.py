@@ -24,7 +24,7 @@ def home():
     start_date_to_send = start_date.strftime('%Y-%m-%dT%H:%M') + 'Z'
     sample_period_hours = (datetime.utcnow() - start_date) \
         // timedelta(hours=1) // settings_data["number of points to show"]
-    data_for_template_dict = get_data_dict()
+    data_for_template_dict = get_data_dict(start_date=start_date)
     return render_template("dashboard.html",
                            form_1=form_1,
                            start_date=start_date_to_send,
@@ -34,12 +34,12 @@ def home():
 
 @views.route('/get_data', methods=['GET'])
 def get_data():
-    data_for_template_dict = get_data_dict()
+    data_for_template_dict = get_data_dict(
+        datetime.utcnow() - timedelta(hours=1))
     return jsonify(data_for_template_dict)
 
 
-def get_data_dict():
-    start_date = datetime.utcnow() - timedelta(hours=1)
+def get_data_dict(start_date):
     hours_to_monitor = (datetime.utcnow() - start_date) // timedelta(hours=1)
     sample_period_hours = hours_to_monitor // \
         settings_data["number of points to show"]

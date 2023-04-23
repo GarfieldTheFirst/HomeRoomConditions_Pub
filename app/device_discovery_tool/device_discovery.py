@@ -14,7 +14,7 @@ def get_discovered_devices_list():
     with tempfile.TemporaryFile() as tempf:
         # execute command to get all devices in linux
         proc = subprocess.Popen(["ip", "neigh", "show"],
-                                stdout=tempf)  
+                                stdout=tempf)
         proc.wait()
         tempf.seek(0)
         devices = list(map(lambda x: x.decode("utf-8"), tempf.readlines()))
