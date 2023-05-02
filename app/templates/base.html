@@ -4,12 +4,13 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 {% endblock %}
 {% block title %}
-    {% if title %}
-        {{ title }} - Gs Site
-    {% else %}
-        {{ 'Gs Site' }}
-    {% endif %}
+    {{ 'Gs Site' }}
 {% endblock %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% block head %}
+    {{super()}}
+    {{fixes.ie8()}}
+{%- endblock %}
 {% block navbar %}
     <nav class="navbar navbar-default">
         <div class="container">
@@ -40,6 +41,8 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        {% block app_content %}{% endblock %}
+        {% block app_content %}
+            <!-- App content appears here -->
+        {% endblock %}
     </div>
 {% endblock %}

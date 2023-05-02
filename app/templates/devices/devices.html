@@ -6,6 +6,13 @@
             {{ form_1.submit }}
         </form>
     </div>
-    <h2>Devices</h2>
-    {{ data }}
+    {% if data == "No Items" %}
+        <h2>Devices in database</h2>
+        {{ data }}
+    {% else %}
+        <br>
+        <p>
+            Currently no devices in database, click above to conduct a scan.
+        </p>
+    {% endif %}
 {% endblock %}

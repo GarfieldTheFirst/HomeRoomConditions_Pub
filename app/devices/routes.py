@@ -12,16 +12,18 @@ from app.db_handler.db_handler import get_all_stored_devices, \
 
 
 class DeviceTable(Table):
-    name = Col('Device name')
-    ip = Col('Device ip')
-    connected = BoolCol('Connected')
-    recording = BoolCol('Recording')
+    name = Col('Device name', th_html_attrs={"style": "width:10%"})
+    ip = Col('Device ip', th_html_attrs={"style": "width:10%"})
+    connected = BoolCol('Connected', th_html_attrs={"style": "width:10%"})
+    recording = BoolCol('Recording', th_html_attrs={"style": "width:10%"})
     record = ButtonCol('Toggle recording', 'devices.show_devices',
                        url_kwargs=dict(name='name', ip='ip'),
                        # this ends up in request.values as an identifier
+                       th_html_attrs={"style": "width:10%"},
                        button_attrs={"name": "form_record"})
     delete = ButtonCol('Delete', 'devices.show_devices',
                        url_kwargs=dict(name='name'),
+                       th_html_attrs={"style": "width:10%"},
                        button_attrs={"name": "form_delete"})
 
 

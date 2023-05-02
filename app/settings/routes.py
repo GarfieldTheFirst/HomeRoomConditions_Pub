@@ -28,7 +28,7 @@ class FieldButtonCol(ButtonCol):
         self.form_fields = form_fields or {}  # Added this argument
 
     # Overriding: fields replace hidden fields
-    def td_contents(self, item, attr_list):  
+    def td_contents(self, item, attr_list):
         button_attrs = dict(self.button_attrs)
         button_attrs['type'] = 'submit'
         button = element(
@@ -61,23 +61,25 @@ class FieldButtonCol(ButtonCol):
 
 
 class BoolSettingsTable(Table):
-    name = Col('Name')
-    enabled = BoolNaCol('Enabled')
+    name = Col('Name', th_html_attrs={"style": "width:20%"})
+    enabled = BoolNaCol('Enabled', th_html_attrs={"style": "width:20%"})
     change_value = ButtonCol(
         'Toggle function', 'settings.show_settings',
         url_kwargs=dict(name='name', enabled='enabled'),
         # this ends up in request.values as an identifier
+        th_html_attrs={"style": "width:20%"},
         button_attrs={"name": "form_change"})
 
 
 class FieldSettingsTable(Table):
-    name = Col('Name')
-    value = Col('Value')
+    name = Col('Name', th_html_attrs={"style": "width:20%"})
+    value = Col('Value', th_html_attrs={"style": "width:20%"})
     change_value = FieldButtonCol(
         'Update value', 'settings.show_settings',
         url_kwargs=dict(name='name'),
         # this ends up in request.values as an identifier
         button_attrs={"name": "form_change"},
+        th_html_attrs={"style": "width:20%"},
         form_fields={"input_field": ""})
 
 
