@@ -7,6 +7,8 @@ Ideas
     -DONE selection of port
 
 Non-Functional:
+    -Device discovery --> broadcast
+    -Handling of device suddenly delivering no data and then delivering data again
     -handling of automatically detected variables
     -Setup logging best practice
     -Update unittests
