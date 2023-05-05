@@ -7,12 +7,12 @@
         </form>
     </div>
     {% if data == "No Items" %}
-        <h2>Devices in database</h2>
-        {{ data }}
-    {% else %}
         <br>
         <p>
             Currently no devices in database, click above to conduct a scan.
         </p>
+    {% else %}
+        <h2>Devices in database</h2>
+        {{ data }}
     {% endif %}
 {% endblock %}
