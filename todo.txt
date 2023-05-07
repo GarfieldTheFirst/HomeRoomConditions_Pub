@@ -13,6 +13,7 @@ Non-Functional:
     -Setup logging best practice
     -Update unittests
     -Remove unnecessary folders / auth
+    -Synchronize device eintries to the DB
     -DONE Prettier format of tables
     -DONE Update device recording status without using the datacollectorhandler as thread
     -DONE Debug database entries: no data being written at the moment

@@ -1,10 +1,9 @@
 from app import settings_data
 import time
-import logging
 from datetime import datetime
 from threading import Thread, Event
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, flash
+from flask import Flask
 from app.data_collector.web_api import API
 from app.db_handler.db_handler import get_stored_device, store_measured_data, \
     get_correct_hour_id_to_link_to_measured_data, \
@@ -48,11 +47,10 @@ class DataCollector(Thread):
                                         device_id=device.id,
                                         hour_id=hour_id)
             except TimeoutError as e:
-                flash("Logger shutting down.")
-                logging.info("No data recorded: {}".format(e))
+                self.app.logger.info("No data recorded: {}".format(e))
                 self.stop_event.set()
             except Exception as e:
-                logging.info("No data recorded: {}".format(e))
+                self.app.logger.info("No data recorded: {}".format(e))
                 with self.app.app_context():
                     device = get_stored_device(ip=self.ip)
                     set_stored_devices_connected_setting(
@@ -63,5 +61,6 @@ class DataCollector(Thread):
                 if elapsed_time < collection_interval:
                     time.sleep(collection_interval - elapsed_time)
                 else:
-                    logging.info("Get iteration length not long enough,\
+                    self.app.logger.info(
+                        "Get iteration length not long enough, \
                         elapsed time: {} s".format(elapsed_time))

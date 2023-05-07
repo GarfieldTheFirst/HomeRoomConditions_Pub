@@ -1,4 +1,3 @@
-import logging
 import requests
 import json
 
@@ -12,8 +11,7 @@ class API():
             url = self.base_url + "/" + variable_name + "?"
             variable = json.loads(requests.get(url=url).content)[variable_name]
             return variable
-        except TimeoutError as e:
-            logging.info(e)
+        except TimeoutError:
             raise
 
     def get_all_data(self):
@@ -21,6 +19,5 @@ class API():
             url = self.base_url
             all_data = json.loads(requests.get(url=url).content)
             return all_data
-        except TimeoutError as e:
-            logging.info(e)
+        except TimeoutError:
             raise

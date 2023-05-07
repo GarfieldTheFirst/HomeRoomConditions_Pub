@@ -13,20 +13,24 @@ def get_discovered_devices_list():
     devices = []
     with tempfile.TemporaryFile() as tempf:
         # execute command to get all devices in linux
-        proc = subprocess.Popen(["ip", "neigh", "show"],
+        # try with ip n or ip -r n
+        proc = subprocess.Popen(["arp", "-a"],
                                 stdout=tempf)
         proc.wait()
         tempf.seek(0)
         devices = list(map(lambda x: x.decode("utf-8"), tempf.readlines()))
+        # yields str: "<name> (ip.ip.ip.ip) at <mac> [ether] on <lan>"
     for device in devices:
-        for item in device.split(" "):
-            ip_candidate = item.split(".")
-            if ip_candidate != '' \
-                    and len(ip_candidate) == 4 \
-                    and len(list(filter(lambda x: x.isalpha(),
-                                        ip_candidate))) == 0:
-                device_ips.append(item)
-    # add simulated endpoint:
+        item = device.split(" ")[1]  # get ip in paretheses
+        item = item.replace("(", "")
+        ip_candidate = item.replace(")", "")
+        ip_candidate_number_blocks = ip_candidate.split(".")
+        if ip_candidate_number_blocks != '' \
+                and len(ip_candidate_number_blocks) == 4 \
+                and len(list(filter(lambda x: x.isalpha(),
+                                    ip_candidate_number_blocks))) == 0:
+            device_ips.append(ip_candidate)
+    # simulated endpoint on localhost --> wont be found so added explicitly:
     device_ips.append("127.0.0.1:" +
                       str(settings_data["simulated device port"]))
 
@@ -73,3 +77,7 @@ def ping_device(job_q: queue.Queue,
                 results_q.put(data)
         except Exception:
             pass
+
+
+if __name__ == "__main__":
+    device_list = get_discovered_devices_list()
