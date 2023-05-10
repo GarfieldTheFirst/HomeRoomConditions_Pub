@@ -4,14 +4,22 @@
         {{ super() }}
         <script src="{{ url_for('static', filename='moment.js') }}"></script>
         <script src="{{ url_for('static', filename='timeConversions.js') }}"></script>
+        <script>
+            var startDate = toMomentSingle("{{ start_date }}");
+            document.getElementById("form_1-start_date").value = startDate;
+            var timeZoneOffset = new Date().getTimezoneOffset() / 60;
+            document.getElementById("form_1-timezone_offset").value = timeZoneOffset;
+        </script>
     {% endblock %}
     {% block styles %}
         {{ super() }}
         <style>
             .grid-container {
-            display: inline-grid;
-            grid-template-columns: auto auto;
-            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 10px;
+            width: 100%;
+            height: 100%;
             }
             .grid-item {
             background-color: rgba(255, 255, 255, 0.8);
@@ -19,6 +27,11 @@
             padding: 20px;
             font-size: 30px;
             text-align: center;
+            width: 100%;
+            }
+            .cell canvas {
+            width: 100%;
+            height: 300px;
             }
         </style>
     {% endblock %}
@@ -31,21 +44,21 @@
                 {{ form_1.timezone_offset() }}
                 {{ form_1.submit }}
             </form>
-            <script>
-                var startDate = toMomentSingle("{{ start_date }}");
-                document.getElementById("form_1-start_date").value = startDate;
-                var timeZoneOffset = new Date().getTimezoneOffset() / 60;
-                document.getElementById("form_1-timezone_offset").value = timeZoneOffset;
-            </script>
         </div>
         <h2>Measurement history</h2>
-        <div class="grid-container">
+        <div class="grid-container" id="chartgrid">
             {% if data_for_template_dict.keys() %}
                 {% for item in data_for_template_dict.keys() %}
                     <div class="cell"><h4>Data for device: {{ item }}</h4></div>
                     <div class="cell"></div>
-                    <div class="cell"><canvas id="lineChart {{ item }}", width="600", height="400"></canvas></div>
-                    <div class="cell"><canvas id="lineChart2 {{ item }}", width="600", height="400"></canvas></div>
+                    <div class="cell">
+                        <p>
+                            {{ data_for_template_dict[item]['temperatures'][-1] }} °C, {{ data_for_template_dict[item]['humidities'][-1] }} %
+                        </p>
+                    </div>
+                    <div class="cell"></div>
+                    <div class="cell"><canvas id="lineChart {{ item }}"></canvas></div>
+                    <div class="cell"><canvas id="lineChart2 {{ item }}"></canvas></div>
                 {% endfor %}
             {% else %}
                 <a href="{{ url_for('devices.show_devices') }}">
