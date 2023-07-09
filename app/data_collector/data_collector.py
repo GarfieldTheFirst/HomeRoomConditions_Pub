@@ -1,5 +1,5 @@
-from app import settings_data
 import time
+import json
 from datetime import datetime
 from threading import Thread, Event
 from flask_sqlalchemy import SQLAlchemy
@@ -8,6 +8,10 @@ from app.data_collector.web_api import API
 from app.db_handler.db_handler import get_stored_device, store_measured_data, \
     get_correct_hour_id_to_link_to_measured_data, \
     set_stored_devices_connected_setting
+
+with open("./appsettings.json") as f:
+    settings_data = json.load(f)
+    f.close()
 
 
 class DataCollector(Thread):

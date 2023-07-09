@@ -49,16 +49,18 @@
         <div class="grid-container" id="chartgrid">
             {% if data_for_template_dict.keys() %}
                 {% for item in data_for_template_dict.keys() %}
-                    <div class="cell"><h4>Data for device: {{ item }}</h4></div>
-                    <div class="cell"></div>
-                    <div class="cell">
-                        <p>
-                            {{ data_for_template_dict[item]['temperatures'][-1] }} °C, {{ data_for_template_dict[item]['humidities'][-1] }} %
-                        </p>
-                    </div>
-                    <div class="cell"></div>
-                    <div class="cell"><canvas id="lineChart {{ item }}"></canvas></div>
-                    <div class="cell"><canvas id="lineChart2 {{ item }}"></canvas></div>
+                    {% if data_for_template_dict[item]['temperatures'][-1] %}
+                        <div class="cell"><h4>Data for device: {{ item }}</h4></div>
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <p>
+                                {{ data_for_template_dict[item]['temperatures'][-1] }} °C, {{ data_for_template_dict[item]['humidities'][-1] }} %
+                            </p>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><canvas id="lineChart {{ item }}"></canvas></div>
+                        <div class="cell"><canvas id="lineChart2 {{ item }}"></canvas></div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <a href="{{ url_for('devices.show_devices') }}">

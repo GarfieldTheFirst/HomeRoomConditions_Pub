@@ -1,5 +1,6 @@
 import unittest
 import time
+import json
 
 from datetime import datetime, timedelta
 from config import TestConfig
@@ -12,7 +13,11 @@ from app.data_collector.data_collector_handler import DataCollectorHandler
 from app.device_discovery_tool.device_discovery import \
     get_discovered_devices_list
 from app.sensorsimulator.simulator_handler import SensorSimulatorHandler
-from app import create_app, db, settings_data
+from app import create_app, db
+
+with open("./appsettings.json") as f:
+    settings_data = json.load(f)
+    f.close()
 
 
 class DataCollectorTest(unittest.TestCase):
@@ -59,7 +64,7 @@ class DataCollectorTest(unittest.TestCase):
                 settings_data["number of points to show"]
             devices_data_dict, device_list = get_data_for_recording_devices(
                 sample_period_hours=sample_period_hours,
-                start_date=start_date)
+                retrieval_start_date=start_date)
             data_arrived = True if devices_data_dict["GArduinoSimulation"] \
                 else False
             time.sleep(settings_data["update interval [s]"])

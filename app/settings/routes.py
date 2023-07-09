@@ -2,7 +2,7 @@ from flask import render_template, flash, request
 from flask_table import Table, Col, BoolNaCol, ButtonCol
 from flask_table.columns import element
 from app.settings import bpr
-from app import settings_data, sensor_simulator_handler
+from app import sensor_simulator_handler
 import json
 
 
@@ -97,6 +97,9 @@ class FieldSetting(object):
 
 @bpr.route('', methods=['POST', 'GET'])
 def show_settings():
+    with open("./appsettings.json") as f:
+        settings_data = json.load(f)
+        f.close()
     if request.method == 'POST':
         if 'enabled' not in request.args:  # field value updated
             raw_value = request.form.get('input_field')

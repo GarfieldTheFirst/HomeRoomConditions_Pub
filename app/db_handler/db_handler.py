@@ -145,13 +145,13 @@ def get_data_for_recording_device(sample_period_hours,
     return data
 
 
-def get_data_for_recording_devices(sample_period_hours, start_date):
+def get_data_for_recording_devices(sample_period_hours, retrieval_start_date):
     recording_devices = get_stored_devices_to_be_monitored()
     results_dict = {}
     for recording_device in recording_devices:
         results_dict.update({recording_device.name:
                             get_data_for_recording_device(
                                 sample_period_hours=sample_period_hours,
-                                start_date=start_date,
+                                start_date=retrieval_start_date,
                                 device=recording_device)})
     return results_dict, recording_devices

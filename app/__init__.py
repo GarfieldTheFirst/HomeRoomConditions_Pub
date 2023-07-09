@@ -1,6 +1,5 @@
 import logging
 import os
-import json
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -13,9 +12,6 @@ bootstrap = Bootstrap()
 db = SQLAlchemy()
 migrate = Migrate()
 moment = Moment()
-with open("./appsettings.json") as f:
-    settings_data = json.load(f)
-    f.close()
 
 
 def create_app(config_class=Config):

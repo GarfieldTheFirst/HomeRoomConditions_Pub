@@ -1,5 +1,9 @@
 from app.sensorsimulator.simulator import SensorSimulator
-from app import settings_data
+import json
+
+with open("./appsettings.json") as f:
+    settings_data = json.load(f)
+    f.close()
 
 
 class SensorSimulatorHandler():

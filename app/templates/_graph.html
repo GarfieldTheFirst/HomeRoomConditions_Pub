@@ -24,7 +24,9 @@
                     }
                 });
     };
-    setInterval(updateCharts, 5000); // Update charts every 5 seconds
+    var updater = setInterval(updateCharts, 5000); // Update charts every 5 seconds upon GET request
+    const submitField = document.getElementById("form_1-submit");
+    //submitField.addEventListener("submit", clearInterval(updater))// after POST request (historic data) stop update
 </script>
 {% for item in data_for_template_dict.keys() %}
     <script>

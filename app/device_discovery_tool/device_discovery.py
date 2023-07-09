@@ -4,7 +4,10 @@ import requests
 import json
 import tempfile
 import queue
-from app import settings_data
+
+with open("./appsettings.json") as f:
+    settings_data = json.load(f)
+    f.close()
 
 
 def get_discovered_devices_list():
