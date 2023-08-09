@@ -1,9 +1,8 @@
-import subprocess
 import threading
 import requests
 import json
-import tempfile
 import queue
+from app.utilities.getip import get_local_ip
 
 with open("./appsettings.json") as f:
     settings_data = json.load(f)
@@ -13,26 +12,12 @@ with open("./appsettings.json") as f:
 def get_discovered_devices_list():
     responses = []
     device_ips = []
-    devices = []
-    with tempfile.TemporaryFile() as tempf:
-        # execute command to get all devices in linux
-        # try with ip n or ip -r n
-        proc = subprocess.Popen(["arp", "-a"],
-                                stdout=tempf)
-        proc.wait()
-        tempf.seek(0)
-        devices = list(map(lambda x: x.decode("utf-8"), tempf.readlines()))
-        # yields str: "<name> (ip.ip.ip.ip) at <mac> [ether] on <lan>"
-    for device in devices:
-        item = device.split(" ")[1]  # get ip in paretheses
-        item = item.replace("(", "")
-        ip_candidate = item.replace(")", "")
-        ip_candidate_number_blocks = ip_candidate.split(".")
-        if ip_candidate_number_blocks != '' \
-                and len(ip_candidate_number_blocks) == 4 \
-                and len(list(filter(lambda x: x.isalpha(),
-                                    ip_candidate_number_blocks))) == 0:
-            device_ips.append(ip_candidate)
+    local_ip = get_local_ip().split('.')
+    local_ip.pop(3)
+    network_base_ip = ''
+    for item in local_ip:
+        network_base_ip += "{}.".format(item)
+    device_ips = [network_base_ip + "{}".format(i) for i in range(0, 255)]
     # simulated endpoint on localhost --> wont be found so added explicitly:
     device_ips.append("127.0.0.1:" +
                       str(settings_data["simulated device port"]))

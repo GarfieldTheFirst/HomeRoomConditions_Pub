@@ -29,6 +29,8 @@ def make_shell_context():
             'DB_Device': DB_Device}
 
 
+app.logger.info("Startup complete")
+
 if __name__ == "__main__":  # not the case if served by waitress
     if selected_configuration in [Development]:
         app.run(use_debugger=False, use_reloader=False,

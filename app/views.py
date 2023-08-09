@@ -11,9 +11,13 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/dashboard', methods=['GET', 'POST'])
 def home():
+    with open("./appsettings.json") as f:
+        settings_data = json.load(f)
+        f.close()
     form_1 = FilteringForm(prefix="form_1")
     # By default (GET), get the data for the last hour
-    start_date = datetime.utcnow() - timedelta(hours=1)
+    start_date = datetime.utcnow() - \
+        timedelta(hours=settings_data["default displayed period [h]"])
     if request.method == 'POST':
         if form_1.validate_on_submit():
             entered_start_date = form_1.start_date.data
@@ -31,16 +35,21 @@ def home():
 
 @views.route('/get_data', methods=['GET'])
 def get_data():
-    start_date = datetime.utcnow() - timedelta(hours=1)
+    with open("./appsettings.json") as f:
+        settings_data = json.load(f)
+        f.close()
+    start_date = datetime.utcnow() - \
+        timedelta(hours=settings_data["default displayed period [h]"])
     data_for_template_dict = get_data_dict(start_date)
     return jsonify(data_for_template_dict)
 
 
 def get_data_dict(start_date):
-    hours_to_monitor = (datetime.utcnow() - start_date) // timedelta(hours=1)
     with open("./appsettings.json") as f:
         settings_data = json.load(f)
         f.close()
+    hours_to_monitor = (datetime.utcnow() - start_date) // \
+        timedelta(hours=1)
     sample_period_hours = hours_to_monitor // \
         settings_data["number of points to show"]
     devices_data_dict, device_list = get_data_for_recording_devices(
