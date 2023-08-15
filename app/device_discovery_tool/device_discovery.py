@@ -1,7 +1,6 @@
-import threading
+import concurrent.futures
 import requests
 import json
-import queue
 from app.utilities.getip import get_local_ip
 
 with open("./appsettings.json") as f:
@@ -22,50 +21,28 @@ def get_discovered_devices_list():
     device_ips.append("127.0.0.1:" +
                       str(settings_data["simulated device port"]))
 
-    jobs = queue.Queue()
-    results = queue.Queue()
-
-    pool = [threading.Thread(
-        target=ping_device,
-        args=(jobs, results)) for i in range(len(device_ips))]
-
-    for p in pool:
-        p.start()
-
-    # Cue the ping processes
-    for ip in device_ips:
-        jobs.put(ip)
-    # add "None" to invoke the stop of the ping mehtod
-    for p in pool:
-        jobs.put(None)
-
-    for p in pool:
-        p.join()
-
-    # collect he results
-    while not results.empty():
-        data = results.get()
-        responses.append(data)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+        futures = {executor.submit(ping_device, ip): ip for ip in device_ips}
+        for future in concurrent.futures.as_completed(futures):
+            ip = futures[future]
+            try:
+                data = future.result()
+                if data:
+                    responses.append(data)
+            except Exception as exc:
+                print(f"Error retrieving data from {ip}: {exc}")
 
     return [json.loads(item) for item in responses]
 
 
-def ping_device(job_q: queue.Queue,
-                results_q: queue.Queue):
-    while True:
-        ip = job_q.get()
-        if ip is None:
-            break  # stop trigger for the process
-        try:
-            url = "http://" + ip
-            data = json.loads(requests.get(url=url, timeout=5).content)
+def ping_device(ip):
+    try:
+        url = "http://" + ip
+        content = requests.get(url=url, timeout=2).content
+        if content:
+            data = json.loads(content)
             data["ip"] = ip
             data = json.dumps(data)
-            if data:
-                results_q.put(data)
-        except Exception:
-            pass
-
-
-if __name__ == "__main__":
-    device_list = get_discovered_devices_list()
+            return data
+    except Exception:
+        return None
