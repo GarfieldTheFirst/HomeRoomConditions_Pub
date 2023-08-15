@@ -50,9 +50,6 @@ class DataCollector(Thread):
                                         time_now=time_now,
                                         device_id=device.id,
                                         hour_id=hour_id)
-            except TimeoutError as e:
-                self.app.logger.info("No data recorded: {}".format(e))
-                self.stop_event.set()
             except Exception as e:
                 self.app.logger.info("No data recorded: {}".format(e))
                 with self.app.app_context():
