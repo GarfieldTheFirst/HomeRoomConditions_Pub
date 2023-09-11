@@ -11,6 +11,7 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/dashboard', methods=['GET', 'POST'])
 def home():
+    auto_reload = True
     with open("./appsettings.json") as f:
         settings_data = json.load(f)
         f.close()
@@ -23,6 +24,7 @@ def home():
             entered_start_date = form_1.start_date.data
             start_date = entered_start_date + \
                 timedelta(hours=int(form_1.timezone_offset.data))
+            auto_reload = False
         else:
             flash("Incompete form data submitted!")
     start_date_to_send = start_date.strftime('%Y-%m-%dT%H:%M') + 'Z'
@@ -30,7 +32,8 @@ def home():
     return render_template("dashboard.html",
                            form_1=form_1,
                            start_date=start_date_to_send,
-                           data_for_template_dict=data_for_template_dict)
+                           data_for_template_dict=data_for_template_dict,
+                           auto_reload=auto_reload)
 
 
 @views.route('/get_data', methods=['GET'])

@@ -42,14 +42,14 @@ class DataCollector(Thread):
                         time_now=time_now)
                     data = API(arduino_base_url="http://" +
                                self.ip).get_all_data()
-                    if not data:
-                        continue
-                    set_stored_devices_connected_setting(
-                        stored_devices=[device], value=True)
-                    store_measured_data(data=data,
-                                        time_now=time_now,
-                                        device_id=device.id,
-                                        hour_id=hour_id)
+                    if data:
+                        set_stored_devices_connected_setting(
+                            stored_devices=[device], value=True)
+                        store_measured_data(data=data,
+                                            time_now=time_now,
+                                            device_id=device.id,
+                                            hour_id=hour_id)
+            # Never stop trying to reach for a device once recorded in the DB
             except Exception as e:
                 self.app.logger.info("No data recorded: {}".format(e))
                 with self.app.app_context():

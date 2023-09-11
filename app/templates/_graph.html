@@ -1,33 +1,33 @@
 <script src="{{ url_for('static', filename='charts.js') }}"></script>
 <script src="{{ url_for('static', filename='timeConversions.js') }}"></script>
-<script>
-    function updateCharts() {
-            fetch('/get_data')
-                .then(response => response.json())
-                .then(data => { 
-                    for (var item in data) {
-                        var timestamps = toMoment(data[item]['labels']);
-                        var movement_detections = data[item]['movements'];
-                        var temperature_recordings = data[item]['temperatures'];
-                        var humidity_recordings = data[item]['humidities'];
-                    
-                        var chart1 = Chart.getChart('lineChart ' + item);
-                        chart1.data.labels = timestamps;
-                        chart1.data.datasets[0].data = temperature_recordings;
-                        chart1.data.datasets[1].data = humidity_recordings;
-                        chart1.update();
-                    
-                        var chart2 = Chart.getChart('lineChart2 ' + item);
-                        chart2.data.labels = timestamps;
-                        chart2.data.datasets[0].data = movement_detections;
-                        chart2.update();
-                    }
-                });
-    };
-    var updater = setInterval(updateCharts, 5000); // Update charts every 5 seconds upon GET request
-    const submitField = document.getElementById("form_1-submit");
-    //submitField.addEventListener("submit", clearInterval(updater))// after POST request (historic data) stop update
-</script>
+{% if auto_reload %}
+    <script>
+        function updateCharts() {
+                fetch('/get_data')
+                    .then(response => response.json())
+                    .then(data => { 
+                        for (var item in data) {
+                            var timestamps = toMoment(data[item]['labels']);
+                            var movement_detections = data[item]['movements'];
+                            var temperature_recordings = data[item]['temperatures'];
+                            var humidity_recordings = data[item]['humidities'];
+                        
+                            var chart1 = Chart.getChart('lineChart ' + item);
+                            chart1.data.labels = timestamps;
+                            chart1.data.datasets[0].data = temperature_recordings;
+                            chart1.data.datasets[1].data = humidity_recordings;
+                            chart1.update();
+                        
+                            var chart2 = Chart.getChart('lineChart2 ' + item);
+                            chart2.data.labels = timestamps;
+                            chart2.data.datasets[0].data = movement_detections;
+                            chart2.update();
+                        }
+                    });
+        };
+        var graphUpdater = setInterval(updateCharts, 5000); // Update charts every 5 seconds upon GET request
+    </script>
+{% endif %}
 {% for item in data_for_template_dict.keys() %}
     <script>
         var timestamps_{{ item }} = toMoment({{ data_for_template_dict[item]['labels']|safe }});

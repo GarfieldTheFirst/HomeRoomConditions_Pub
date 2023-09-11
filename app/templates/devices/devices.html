@@ -1,7 +1,16 @@
 {% extends "base.html" %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function updateDevices() {
+            window.location.reload();
+        };
+        var deviceUpdater = setInterval(updateDevices, 10000); // Update charts every 5 seconds upon GET request
+    </script>
+{% endblock %}
 {% block app_content %}
     <div class="cell">
-        <form method="POST" name="Refresh form">
+        <form method="POST" name="Refresh form" onsubmit="clearInterval(deviceUpdater)">
             {{ form_1.hidden_tag() }}
             {{ form_1.submit }}
         </form>
