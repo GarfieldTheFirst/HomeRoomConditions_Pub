@@ -41,6 +41,11 @@ def set_stored_devices_connected_setting(stored_devices, value):
     db.session.commit()
 
 
+def get_stored_devices_connected_setting(stored_device):
+    return db.session.query(DB_Device).filter(
+        DB_Device.id == stored_device.id).first().connected
+
+
 def set_stored_devices_recording_setting(stored_devices, value):
     for stored_device in stored_devices:
         stored_device.recording = value
