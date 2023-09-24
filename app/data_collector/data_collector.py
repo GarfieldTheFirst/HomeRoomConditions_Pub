@@ -23,6 +23,7 @@ class DataCollector(Thread):
                  db: SQLAlchemy) -> None:
         super(DataCollector, self).__init__(
             target=self.collect_arduino_edge_data,
+            name="Data collector {}".format(DataCollector.collector_number),
             args=())
         self.db = db
         self.ip = ip
