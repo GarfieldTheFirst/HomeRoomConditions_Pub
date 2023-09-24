@@ -2,7 +2,7 @@ import json
 from flask import Blueprint, jsonify, request, render_template, flash
 from datetime import datetime, timedelta
 from app.forms import FilteringForm
-from app.db_handler.db_handler import get_data_for_recording_devices, get_stored_devices_connected_setting
+from app.db_handler.db_handler import get_data_for_recording_devices
 
 
 views = Blueprint('views', __name__)
@@ -80,5 +80,7 @@ def get_data_dict(start_date):
                     [row.movement_detection
                      for row in devices_data_dict[device.name]],
                     'connected':
-                    get_stored_devices_connected_setting(device)}})
+                    device.connected,
+                    'last_seen':
+                    str(device.last_seen) + 'Z'}})
     return data_for_template_dict

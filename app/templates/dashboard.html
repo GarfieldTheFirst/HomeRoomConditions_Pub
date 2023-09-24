@@ -10,6 +10,12 @@
             var timeZoneOffset = new Date().getTimezoneOffset() / 60;
             document.getElementById("form_1-timezone_offset").value = timeZoneOffset;
         </script>
+        {% for item in data_for_template_dict.keys() %}
+            <script>
+                var lastSeen_{{item}} = toMomentSingle('{{ data_for_template_dict[item]["last_seen"]|safe }}');
+                document.getElementById("last seen indicator {{ item }}").innerHTML = "last seen at: " + lastSeen_{{ item }};
+            </script>
+        {% endfor %}
     {% endblock %}
     {% block styles %}
         {{ super() }}
@@ -53,7 +59,7 @@
                         {% if data_for_template_dict[item]['connected'] %}
                             <div class="cell"><h4>Data for device: {{ item }}</h4></div>
                         {% else %}
-                            <div class="cell"><h4>Data for device: {{ item }}, currently offline</h4></div>
+                            <div class="cell"><h4>Data for device: {{ item }} (offline)</h4><h4 id="last seen indicator {{ item }}"><h4></div>
                         {% endif %}
                         <div class="cell"></div>
                         <div class="cell">
