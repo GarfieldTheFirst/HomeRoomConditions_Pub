@@ -22,8 +22,8 @@ class DataCollector(Thread):
                  app: Flask,
                  db: SQLAlchemy) -> None:
         super(DataCollector, self).__init__(
-            target=self.collect_arduino_edge_data,
             name="Data collector {}".format(DataCollector.collector_number),
+            target=self.collect_arduino_edge_data,
             args=())
         self.db = db
         self.ip = ip

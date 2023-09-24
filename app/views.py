@@ -11,7 +11,7 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/dashboard', methods=['GET', 'POST'])
 def home():
-    auto_reload = True
+    auto_reload = False
     with open("./appsettings.json") as f:
         settings_data = json.load(f)
         f.close()
