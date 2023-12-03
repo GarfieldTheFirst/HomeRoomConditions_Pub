@@ -41,6 +41,7 @@ class Day(db.Model):
 class Hour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hour = db.Column(db.Integer, default=datetime.utcnow().hour)
+    movement_detection = db.Column(db.Integer, default=0)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
     data_points = db.relationship('Roomdata', lazy='select',
                                   backref=db.backref('hour', lazy='joined'))
@@ -50,7 +51,7 @@ class Roomdata(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     temperature = db.Column(db.Integer, nullable=True)
     humidity = db.Column(db.Integer, nullable=True)
-    movement_detection = db.Column(db.Integer, nullable=True)
+    movement_detection = db.Column(db.Integer, default=0)
     date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     hour_id = db.Column(db.Integer, db.ForeignKey('hour.id'), nullable=False)
     device_id = db.Column(db.Integer,

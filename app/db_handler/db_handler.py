@@ -126,6 +126,9 @@ def store_measured_data(data, time_now, device_id, hour_id):
         device_id=device_id,
         hour_id=hour_id)
     db.session.add(new_data)
+    if new_data.movement_detection == 1:
+        hour = db.session.query(Hour).filter_by(id=hour_id).first()
+        hour.movement_detection = 1
     db.session.commit()
 
 
@@ -142,8 +145,10 @@ def get_data_for_recording_device(sample_period_hours,
             for hour in hours_to_consider:
                 hour_count += 1
                 if not hour_count % sample_period_hours:
-                    data.append(db.session.query(Roomdata).with_parent(hour).
-                                with_parent(device).first())
+                    roomdata = db.session.query(Roomdata).with_parent(
+                        hour).with_parent(device).first()
+                    roomdata.movement_detection = hour.movement_detection
+                    data.append(roomdata)
         else:
             data += db.session.query(Roomdata).with_parent(device).filter(
                 Roomdata.date >= start_date).all()
