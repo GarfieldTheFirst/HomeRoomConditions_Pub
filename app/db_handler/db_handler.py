@@ -1,3 +1,4 @@
+from datetime import datetime
 from app import db
 from app.models.roomdata import Hour, Year, Day, Month, Roomdata
 from app.models.roomdata import Device as DB_Device
@@ -37,13 +38,10 @@ def get_stored_devices_to_be_monitored():
 
 def set_stored_devices_connected_setting(stored_devices, value):
     for stored_device in stored_devices:
+        if stored_device.connected != value:
+            stored_device.last_seen = datetime.utcnow()  # update any changes
         stored_device.connected = value
     db.session.commit()
-
-
-def get_stored_devices_connected_setting(stored_device):
-    return db.session.query(DB_Device).filter(
-        DB_Device.id == stored_device.id).first().connected
 
 
 def set_stored_devices_recording_setting(stored_devices, value):

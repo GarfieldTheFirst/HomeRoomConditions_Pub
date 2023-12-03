@@ -9,10 +9,6 @@ from app.db_handler.db_handler import get_stored_device, store_measured_data, \
     get_correct_hour_id_to_link_to_measured_data, \
     set_stored_devices_connected_setting
 
-with open("./appsettings.json") as f:
-    settings_data = json.load(f)
-    f.close()
-
 
 class DataCollector(Thread):
     collector_number = 0
@@ -36,6 +32,9 @@ class DataCollector(Thread):
         while not self.stop_event.is_set():
             get_iteration_start_time = time.time()
             try:
+                with open("./appsettings.json") as f:
+                    settings_data = json.load(f)
+                    f.close()
                 time_now = datetime.utcnow()
                 with self.app.app_context():
                     device = get_stored_device(ip=self.ip)
