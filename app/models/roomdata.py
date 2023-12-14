@@ -17,7 +17,8 @@ class Device(db.Model):
     recording = db.Column(db.Boolean)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     data_points = db.relationship('Roomdata', lazy='joined',
-                                  backref='device', passive_deletes=True)
+                                  backref='device', cascade="all, delete",
+                                  passive_deletes=True)
 
 
 class Year(db.Model):
@@ -53,7 +54,6 @@ class Hour(db.Model):
 
 
 class Roomdata(db.Model):
-    __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
     temperature = db.Column(db.Integer, nullable=True)
     humidity = db.Column(db.Integer, nullable=True)
