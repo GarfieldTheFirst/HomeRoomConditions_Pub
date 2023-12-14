@@ -13,7 +13,11 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DB_NAME = os.environ.get('DB_NAME')
+    USER_DB_NAME = os.environ.get('USER_DB_NAME')
     SQLALCHEMY_DATABASE_URI = f'sqlite:///data/{DB_NAME}'
+    SQLALCHEMY_BINDS = {
+        'db2': f'sqlite:///data/{USER_DB_NAME}'
+    }
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
@@ -22,6 +26,8 @@ class Config(object):
     LANGUAGES = ['en', 'de']
     ADMINS = []
     ADMINS.append(os.environ.get('ADMINS'))
+    APP_ADMIN = os.environ.get('APP_ADMIN')
+    APP_ADMIN_CRED = os.environ.get('APP_ADMIN_CRED')
     SIMULATED = True
 
 

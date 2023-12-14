@@ -1,7 +1,41 @@
 from datetime import datetime
 from app import db
-from app.models.roomdata import Hour, Year, Day, Month, Roomdata
+from app.models.roomdata import Hour, Year, Day, Month, Roomdata, User, Role
 from app.models.roomdata import Device as DB_Device
+
+
+def get_all_stored_users():
+    return db.session.query(User).all()
+
+
+def get_stored_user(**kwargs):
+    for key, value in kwargs.items():
+        if key == "id":
+            user = db.session.query(User).filter_by(id=value).first()
+        elif key == "username":
+            user = db.session.query(User).filter_by(
+                username=value).first()
+        else:
+            raise Exception
+    return user
+
+
+def delete_stored_users(stored_users):
+    for user in stored_users:
+        if not user.is_administrator():
+            db.session.delete(user)
+    db.session.commit()
+
+
+def modify_stored_user_permissions(stored_users):
+    for user in stored_users:
+        if user.is_administrator():
+            continue
+        elif user.is_user():
+            user.role = Role.query.filter_by(name='Tentative').first()
+        elif user.is_tentative():
+            user.role = Role.query.filter_by(name='User').first()
+    db.session.commit()
 
 
 def get_all_stored_devices():

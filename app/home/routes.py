@@ -1,15 +1,17 @@
 import json
-from flask import Blueprint, jsonify, request, render_template, flash
+from flask import jsonify, request, render_template, flash
+from flask_login import login_required
+from app.utilities.decorators import user_required
 from datetime import datetime, timedelta
-from app.forms import FilteringForm
+from app.home import bpr
+from app.home.forms import FilteringForm
 from app.db_handler.db_handler import get_data_for_recording_devices
 
 
-views = Blueprint('views', __name__)
-
-
-@views.route('/', methods=['GET', 'POST'])
-@views.route('/dashboard', methods=['GET', 'POST'])
+@bpr.route('/', methods=['GET', 'POST'])
+@bpr.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+@user_required
 def home():
     auto_reload = False
     with open("./appsettings.json") as f:
@@ -29,14 +31,16 @@ def home():
             flash("Incompete form data submitted!")
     start_date_to_send = start_date.strftime('%Y-%m-%dT%H:%M') + 'Z'
     data_for_template_dict = get_data_dict(start_date)
-    return render_template("dashboard.html",
+    return render_template("home/dashboard.html",
                            form_1=form_1,
                            start_date=start_date_to_send,
                            data_for_template_dict=data_for_template_dict,
                            auto_reload=auto_reload)
 
 
-@views.route('/get_data', methods=['GET'])
+@bpr.route('/get_data', methods=['GET'])
+@login_required
+@user_required
 def get_data():
     with open("./appsettings.json") as f:
         settings_data = json.load(f)

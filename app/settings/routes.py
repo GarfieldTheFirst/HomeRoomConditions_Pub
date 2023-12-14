@@ -1,6 +1,8 @@
 from flask import render_template, flash, request
 from flask_table import Table, Col, BoolNaCol, ButtonCol
 from flask_table.columns import element
+from app.utilities.decorators import admin_required
+from flask_login import login_required
 from app.settings import bpr
 from app import sensor_simulator_handler
 import json
@@ -96,6 +98,8 @@ class FieldSetting(object):
 
 
 @bpr.route('', methods=['POST', 'GET'])
+@login_required
+@admin_required
 def show_settings():
     with open("./appsettings.json") as f:
         settings_data = json.load(f)
