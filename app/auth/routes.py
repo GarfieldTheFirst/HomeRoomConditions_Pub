@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request
+from flask_table import Table, Col, ButtonCol
 from werkzeug.urls import url_parse
 from flask_login import login_required, login_user, logout_user, current_user
 from app import db
@@ -8,6 +9,32 @@ from app.auth.forms import LoginForm, RegistrationForm, \
 from app.utilities.decorators import admin_required
 from app.models.roomdata import User, Role
 from app.auth.email import send_password_reset_email
+from app.db_handler.db_handler import get_all_stored_users, get_stored_user, \
+    modify_stored_user_permissions, delete_stored_users
+
+
+class UserTable(Table):
+    id = Col('User id', th_html_attrs={"style": "width:10%"})
+    name = Col('User name', th_html_attrs={"style": "width:10%"})
+    email = Col('User email', th_html_attrs={"style": "width:10%"})
+    status = Col('Status', th_html_attrs={"style": "width:10%"})
+    change_status = ButtonCol('Confirm/Disallow', 'auth.confirm',
+                              url_kwargs=dict(id='id'),
+                              # this ends up in request.values as an identifier
+                              th_html_attrs={"style": "width:10%"},
+                              button_attrs={"name": "form_confirm"})
+    delete = ButtonCol('Delete', 'auth.confirm',
+                       url_kwargs=dict(id='id'),
+                       th_html_attrs={"style": "width:10%"},
+                       button_attrs={"name": "form_delete"})
+
+
+class UserEntry(object):
+    def __init__(self, id, name, email, status) -> None:
+        self.id = id
+        self.name = name
+        self.email = email
+        self.status = status
 
 
 @bpr.route('auth/login', methods=['GET', 'POST'])
@@ -45,30 +72,33 @@ def login():
 @login_required
 @admin_required
 def confirm():
+    users = []
+    if request.method == "POST":
+        if "form_confirm" in request.values:
+            user_id_to_confirm = request.args['id']
+            user_to_confirm = get_stored_user(id=user_id_to_confirm)
+            modify_stored_user_permissions([user_to_confirm])
+            flash("Changed user {}'s status.".format(user_to_confirm.username))
+        if "form_delete" in request.values:
+            user_id_to_delete = request.args['id']
+            user_to_delete = get_stored_user(id=user_id_to_delete)
+            delete_stored_users([user_to_delete])
+            flash("Deleted user {}.".format(user_to_delete.username))
+    stored_users = get_all_stored_users()
+    for stored_user in stored_users:
+        if not stored_user.is_administrator():
+            users.append(UserEntry(id=stored_user.id,
+                                   name=stored_user.username,
+                                   status=stored_user.is_user(),
+                                   email=stored_user.email))
+    table = UserTable(users)
+    table.table_id = "users"
+    table.classes = ["table", "table-striped", "left-align"]
     if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
-    role_to_be_verified = \
-        Role.query.filter_by(name='Tentative').first()
-    users_to_be_verified = \
-        User.query.with_parent(role_to_be_verified).all()
     return render_template('auth/user_verification.html',
                            title='Verify users',
-                           users_to_be_verified=users_to_be_verified)
-
-
-@bpr.route('auth/confirm/approve', methods=['POST'])
-@login_required
-@admin_required
-def approve_user():
-    user_id_to_be_granted_rights = request.form['user_id']
-    user_to_be_granted_rights = User.query.filter_by(
-        id=user_id_to_be_granted_rights).first()
-    user_to_be_granted_rights.role = Role.query.filter_by(name='User').first()
-    db.session.commit()
-    if user_to_be_granted_rights.role.name == "User":
-        return "User confirmed!"
-    else:
-        return "User not confirmed"
+                           user_table=table)
 
 
 @bpr.route('auth/logout')

@@ -1,6 +1,6 @@
 from flask import render_template, flash, request
 from flask_table import Table, Col, BoolCol, ButtonCol
-from flask_login import login_required, login_user, current_user
+from flask_login import login_required
 from app.utilities.decorators import admin_required
 from app.devices import bpr
 from app.devices.forms import SubmitForm

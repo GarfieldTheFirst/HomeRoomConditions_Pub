@@ -16,9 +16,8 @@ class Device(db.Model):
     connected = db.Column(db.Boolean)
     recording = db.Column(db.Boolean)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    data_points = db.relationship('Roomdata', lazy='select',
-                                  backref=db.backref('device', lazy='joined',
-                                                     passive_deletes=True))
+    data_points = db.relationship('Roomdata', lazy='joined',
+                                  backref='device', passive_deletes=True)
 
 
 class Year(db.Model):
@@ -54,6 +53,7 @@ class Hour(db.Model):
 
 
 class Roomdata(db.Model):
+    __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
     temperature = db.Column(db.Integer, nullable=True)
     humidity = db.Column(db.Integer, nullable=True)
@@ -163,9 +163,9 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
+            'Tentative': [Permission.DEFAULT],
             'User': [Permission.USER],
-            'Administrator': [Permission.USER, Permission.ADMIN],
-            'Tentative': [Permission.DEFAULT]
+            'Administrator': [Permission.USER, Permission.ADMIN]
         }
         default_role = 'Tentative'
         for r in roles:
