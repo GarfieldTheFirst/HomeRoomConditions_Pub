@@ -6,12 +6,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_bootstrap import Bootstrap
+from flask_login import LoginManager
+from flask_mail import Mail
 from config import Config
 
 bootstrap = Bootstrap()
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={"expire_on_commit": False})
+login = LoginManager()
+login.login_view = 'auth.login'
+login.login_message = 'Please log in to access this page.'
 migrate = Migrate()
 moment = Moment()
+mail = Mail()
 
 
 def create_app(config_class=Config):
@@ -33,17 +39,21 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     db.init_app(app)
     migrate.init_app(app, db)
+    login.init_app(app)
     bootstrap.init_app(app)
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     moment.init_app(app)
+    mail.init_app(app)
 
-    from app.views import views
+    from app.home import bpr as home_bp
     from app.devices import bpr as devices_bp
     from app.settings import bpr as settings_bp
+    from app.auth import bpr as auth_bp
 
-    app.register_blueprint(views)
+    app.register_blueprint(home_bp)
     app.register_blueprint(devices_bp, url_prefix='/devices')
     app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     return app
 

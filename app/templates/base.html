@@ -30,14 +30,29 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('views.home') }}">Home/Dashboard</a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="{{ url_for('devices.show_devices') }}">{{ 'Show devices' }}</a></li>
-                    <li><a href="{{ url_for('settings.show_settings') }}">{{ 'Show settings' }}</a></li>
-                </ul>
-            </div>
+            {% if current_user.is_anonymous %}
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- The is_anonymous property is one of the attributes that Flask-Login adds to user objects through the UserMixin class. The current_user.is_anonymous expression is going to be True only when the user is not logged in. -->
+                        <li><a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                {% if not current_user.is_tentative() %}
+                    <a class="navbar-brand" href="{{ url_for('home.home') }}">{{ 'Dashboard' }}</a>
+                {% endif %}
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_administrator() %}
+                        <li><a href="{{ url_for('devices.show_devices') }}">{{ 'Show devices' }}</a></li>
+                        <li><a href="{{ url_for('settings.show_settings') }}">{{ 'Show settings' }}</a></li>
+                        <li><a href="{{ url_for('auth.confirm') }}">{{ 'Confirm users' }}</a></li>
+                {% endif %}
+                        <li><a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
     </nav>
 {% endblock %}

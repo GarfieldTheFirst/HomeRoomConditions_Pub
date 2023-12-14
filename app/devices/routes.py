@@ -1,5 +1,7 @@
 from flask import render_template, flash, request
 from flask_table import Table, Col, BoolCol, ButtonCol
+from flask_login import login_required, login_user, current_user
+from app.utilities.decorators import admin_required
 from app.devices import bpr
 from app.devices.forms import SubmitForm
 from app.device_discovery_tool.device_discovery import \
@@ -36,6 +38,8 @@ class Device(object):
 
 
 @bpr.route('', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def show_devices():
     stored_devices = get_all_stored_devices()
     stored_device_names = [stored_device.name

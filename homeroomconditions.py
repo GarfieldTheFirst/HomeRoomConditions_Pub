@@ -1,7 +1,8 @@
 from app import create_app, db, data_collector_handler, \
     sensor_simulator_handler
 from sqlalchemy_utils import database_exists
-from app.models.roomdata import Device as DB_Device, Roomdata, Hour
+from app.models.roomdata import Device as DB_Device, Roomdata, Hour, User, \
+    Role, Permission
 from config import Config, Development
 import os
 
@@ -15,6 +16,13 @@ app = create_app(config_class=selected_configuration)
 with app.app_context() as ac:
     if not database_exists(db.engine.url):
         db.create_all()
+        Role.insert_roles()
+        admin_user = User(username='admin', email=Config.APP_ADMIN)
+        admin_user.set_password(Config.APP_ADMIN_CRED)
+        admin_user.role = Role.query.filter_by(name='Administrator').first()
+        db.session.add(admin_user)
+        db.session.commit()
+
 
 data_collector_handler.app = app
 sensor_simulator_handler.update_simulated_devices()
@@ -26,7 +34,10 @@ def make_shell_context():
     return {'db': db,
             'Roomdata': Roomdata,
             'Hour': Hour,
-            'DB_Device': DB_Device}
+            'DB_Device': DB_Device,
+            'User': User,
+            'Role': Role,
+            'Permission': Permission}
 
 
 app.logger.info("Startup complete")
