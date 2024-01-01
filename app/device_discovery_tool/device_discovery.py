@@ -38,7 +38,7 @@ def get_discovered_devices_list():
 def ping_device(ip):
     try:
         url = "http://" + ip
-        content = requests.get(url=url, timeout=2).content
+        content = requests.get(url=url, timeout=5).content
         if content:
             data = json.loads(content)
             data["ip"] = ip

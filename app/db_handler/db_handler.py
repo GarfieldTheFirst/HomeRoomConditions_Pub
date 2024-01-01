@@ -179,8 +179,9 @@ def get_data_for_recording_device(sample_period_hours,
                 if not hour_count % sample_period_hours:
                     roomdata = db.session.query(Roomdata).with_parent(
                         hour).with_parent(device).first()
-                    roomdata.movement_detection = hour.movement_detection
-                    data.append(roomdata)
+                    if roomdata:
+                        roomdata.movement_detection = hour.movement_detection
+                        data.append(roomdata)
         else:
             data += db.session.query(Roomdata).with_parent(device).filter(
                 Roomdata.date >= start_date).all()
