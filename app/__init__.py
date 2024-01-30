@@ -2,6 +2,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 from flask import Flask
+from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_moment import Moment
@@ -10,8 +11,18 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from config import Config
 
+
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
 bootstrap = Bootstrap()
-db = SQLAlchemy(session_options={"expire_on_commit": False})
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(session_options={"expire_on_commit": False}, metadata=metadata)
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please log in to access this page.'

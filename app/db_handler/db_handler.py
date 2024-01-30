@@ -1,4 +1,6 @@
+import json
 from datetime import datetime
+from sqlalchemy import func
 from app import db
 from app.models.roomdata import Hour, Year, Day, Month, Roomdata, User, Role
 from app.models.roomdata import Device as DB_Device
@@ -144,6 +146,16 @@ def get_correct_hour_id_to_link_to_measured_data(time_now):
     )
     return hour_data.id
 
+def delete_excess_data():
+    max_hour_id = db.session.query(Hour).order_by(Hour.id.desc()).first().id
+    with open("./appsettings.json") as f:
+        settings_data = json.load(f)
+        f.close()
+    hours_to_delete = db.session.query(Hour).filter(
+        Hour.id < (max_hour_id - settings_data["hours to store [h]"])).all()
+    for hour in hours_to_delete:
+        db.session.delete(hour)
+    db.session.commit()
 
 def store_measured_data(data, time_now, device_id, hour_id):
     # has keyerror when n
@@ -166,6 +178,7 @@ def store_measured_data(data, time_now, device_id, hour_id):
 
 def get_data_for_recording_device(sample_period_hours,
                                   start_date, device: DB_Device):
+    delete_excess_data()
     data = []
     first_date_to_consider = db.session.query(Roomdata).filter(
         Roomdata.date >= start_date).order_by(Roomdata.id.asc()).first()
@@ -184,7 +197,7 @@ def get_data_for_recording_device(sample_period_hours,
                         data.append(roomdata)
         else:
             data += db.session.query(Roomdata).with_parent(device).filter(
-                Roomdata.date >= start_date).all()
+                Roomdata.date >= start_date).limit(1000).all()
     return data
 
 

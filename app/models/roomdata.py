@@ -25,32 +25,40 @@ class Year(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer, default=datetime.utcnow().year)
     months = db.relationship('Month', lazy='select',
-                             backref=db.backref('year', lazy='joined'))
+                             backref=db.backref('year', lazy='joined'), 
+                             cascade="all, delete",
+                             passive_deletes=True)
 
 
 class Month(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     month = db.Column(db.Integer, default=datetime.utcnow().month)
-    year_id = db.Column(db.Integer, db.ForeignKey('year.id'))
+    year_id = db.Column(db.Integer, db.ForeignKey('year.id', ondelete='CASCADE'))
     days = db.relationship('Day', lazy='select',
-                           backref=db.backref('month', lazy='joined'))
+                           backref=db.backref('month', lazy='joined'),
+                           cascade="all, delete",
+                           passive_deletes=True)
 
 
 class Day(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Integer, default=datetime.utcnow().day)
-    month_id = db.Column(db.Integer, db.ForeignKey('month.id'))
+    month_id = db.Column(db.Integer, db.ForeignKey('month.id', ondelete='CASCADE'))
     hours = db.relationship('Hour', lazy='select',
-                            backref=db.backref('day', lazy='joined'))
+                            backref=db.backref('day', lazy='joined'),
+                            cascade="all, delete",
+                            passive_deletes=True)
 
 
 class Hour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hour = db.Column(db.Integer, default=datetime.utcnow().hour)
     movement_detection = db.Column(db.Integer, default=0)
-    day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
+    day_id = db.Column(db.Integer, db.ForeignKey('day.id', ondelete='CASCADE'))
     data_points = db.relationship('Roomdata', lazy='select',
-                                  backref=db.backref('hour', lazy='joined'))
+                                  backref=db.backref('hour', lazy='joined'),
+                                  cascade="all, delete",
+                                  passive_deletes=True)
 
 
 class Roomdata(db.Model):

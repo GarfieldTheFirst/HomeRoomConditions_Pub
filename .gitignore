@@ -6,5 +6,6 @@
 *.pyc
 *.zip
 *.db
+.env_local
 notes.txt
 run_app.sh

@@ -2,6 +2,9 @@ import os
 from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+# Create a copy of .env, name it .env_local and fill it out
+# Override .env entries
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env_local")
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 else:
@@ -24,18 +27,16 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     LANGUAGES = ['en', 'de']
-    ADMINS = []
+    ADMINS = [os.environ.get('MAIL_USERNAME')]
     ADMINS.append(os.environ.get('ADMINS'))
     APP_ADMIN = os.environ.get('APP_ADMIN')
     APP_ADMIN_CRED = os.environ.get('APP_ADMIN_CRED')
-    SIMULATED = True
 
 
 class Development(Config):
-    SIMULATED = True
+    pass # nothing here right now...
 
 
 class TestConfig(Config):
-    SIMULATED = True
     DB_NAME = "database_test.db"
     SQLALCHEMY_DATABASE_URI = f'sqlite:///data/{DB_NAME}'

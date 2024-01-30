@@ -13,7 +13,7 @@ from app.db_handler.db_handler import get_data_for_recording_devices
 @login_required
 @user_required
 def home():
-    auto_reload = False
+    auto_reload = False  # maybe add to appsettings
     with open("./appsettings.json") as f:
         settings_data = json.load(f)
         f.close()
