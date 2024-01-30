@@ -2,9 +2,6 @@ import os
 from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-# Create a copy of .env, name it .env_local and fill it out
-# Override .env entries
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env_local")
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 else:
