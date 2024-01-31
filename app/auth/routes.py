@@ -130,8 +130,9 @@ def reset_password_request():
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        host_name = form.host_name.data
         if user:
-            send_password_reset_email(user)
+            send_password_reset_email(user, host_name)
         flash(
             'Check your email for the instructions to reset your password')
         return redirect(url_for('home.home'))

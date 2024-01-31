@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models.roomdata import User
 # Some string literals are assigned outside of a request, usually when the
@@ -39,6 +39,7 @@ class RegistrationForm(FlaskForm):
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
+    host_name = HiddenField('Hostname')
     submit = SubmitField('Request Password Reset')
 
 
